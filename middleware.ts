@@ -7,8 +7,11 @@ export async function middleware(req: NextRequest) {
   try {
     const token = await getToken({ req });
     const { nextUrl } = req;
-    if (!token && nextUrl.pathname.startsWith("/agenda")) {
-      const url = new URL("/login", nextUrl);
+    const basePath = `${nextUrl.basePath}${
+      nextUrl.locale !== nextUrl.defaultLocale ? `/${nextUrl.locale}` : ""
+    }`;
+    if (!token && nextUrl.pathname.startsWith(`${basePath}/agenda`)) {
+      const url = new URL(`${basePath}/login`, nextUrl);
       url.searchParams.set("callbackUrl", nextUrl.pathname);
       return NextResponse.redirect(url);
     }
@@ -20,5 +23,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/agenda/:path*"],
+  matcher: ["/agenda/:path*", "/:locale/agenda/:path*"],
 };
