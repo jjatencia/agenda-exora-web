@@ -31,6 +31,7 @@ const config: NextAuthConfig = {
       },
     }),
   ],
+
   session: { strategy: "jwt" as const },
   pages: {
     signIn: "/login", // Usar ruta relativa siempre
@@ -39,6 +40,7 @@ const config: NextAuthConfig = {
   callbacks: {
     async redirect({ url, baseUrl }) {
       // Asegurar redirects seguros
+
       if (url.startsWith("/")) return `${baseUrl}${url}`;
       if (new URL(url).origin === baseUrl) return url;
       return baseUrl;
@@ -47,13 +49,16 @@ const config: NextAuthConfig = {
       // Asegurar que la sesión tenga los datos necesarios
       if (token?.sub && session.user) {
         session.user.id = token.sub;
+
       }
       return session;
     },
   },
-  trustHost: true, // necesario en Vercel para callbacks correctos
+  trustHost: true,
   secret: process.env.NEXTAUTH_SECRET,
+
   debug: process.env.NODE_ENV === "development", // Solo debug en desarrollo
 };
 
 export const { handlers, auth, signIn, signOut } = NextAuth(config);
+

@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 
 export default async function Home() {
+
   try {
     const session = await auth();
     
@@ -16,4 +17,5 @@ export default async function Home() {
     // Fallback seguro
     redirect("/login");
   }
+
 }

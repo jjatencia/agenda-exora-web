@@ -13,6 +13,7 @@ export default auth((req) => {
     loginUrl.searchParams.set("callbackUrl", pathname);
     console.log("[MIDDLEWARE] Redirecting to login:", loginUrl.toString());
     return NextResponse.redirect(loginUrl);
+
   }
   
   return NextResponse.next();

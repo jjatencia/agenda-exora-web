@@ -3,6 +3,7 @@ import { signIn } from "@/auth";
 export default function LoginPage() {
   async function doLogin(formData: FormData) {
     "use server";
+
     try {
       const email = String(formData.get("email") || "");
       const password = String(formData.get("password") || "");
@@ -17,6 +18,7 @@ export default function LoginPage() {
       console.error("[LOGIN ERROR]", error);
       // NextAuth maneja los errores automáticamente
     }
+
   }
 
   return (
