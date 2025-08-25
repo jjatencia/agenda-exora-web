@@ -5,7 +5,9 @@ export default function LoginPage() {
     "use server";
     const email = String(formData.get("email") || "");
     const password = String(formData.get("password") || "");
-    await signIn("credentials", { email, password, redirectTo: "/agenda" });
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+    const redirectTo = baseUrl ? new URL("/agenda", baseUrl).toString() : "/agenda";
+    await signIn("credentials", { email, password, redirectTo });
   }
 
   return (

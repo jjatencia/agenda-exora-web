@@ -28,7 +28,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ],
   session: { strategy: "jwt" },
   pages: {
-    signIn: "/login", // redirección por defecto tras exigir login
+    signIn: process.env.NEXT_PUBLIC_BASE_URL
+      ? new URL("/login", process.env.NEXT_PUBLIC_BASE_URL).pathname
+      : "/login", // redirección por defecto tras exigir login
   },
   trustHost: true, // necesario en Vercel para callbacks correctos
   secret: process.env.NEXTAUTH_SECRET,
