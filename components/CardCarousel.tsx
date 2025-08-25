@@ -14,6 +14,11 @@ interface Props {
 export default function CardCarousel({ appointments, onRefresh }: Props) {
   const [index, setIndex] = useState(0);
   const width = 288; // w-72 + gap
+  const maxIndex = Math.max(appointments.length - 1, 0);
+
+  if (appointments.length === 0) {
+    return null;
+  }
 
   async function handleNoShow(id: string) {
     await markNoShow(id);
@@ -25,14 +30,14 @@ export default function CardCarousel({ appointments, onRefresh }: Props) {
       <motion.div
         className="flex gap-4"
         drag="x"
-        dragConstraints={{ left: -(appointments.length - 1) * width, right: 0 }}
+        dragConstraints={{ left: -maxIndex * width, right: 0 }}
         animate={{ x: -index * width }}
         transition={{ type: 'spring', stiffness: 200, damping: 30 }}
         onDragEnd={(_, info) => {
           const offset = info.offset.x;
           const velocity = info.velocity.x;
           if (offset < -50 || velocity < -500) {
-            setIndex(Math.min(index + 1, appointments.length - 1));
+            setIndex(Math.min(index + 1, maxIndex));
           } else if (offset > 50 || velocity > 500) {
             setIndex(Math.max(index - 1, 0));
           }
