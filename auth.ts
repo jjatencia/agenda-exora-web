@@ -10,7 +10,7 @@ async function authenticateViaBackend(email: string, password: string) {
   return null;
 }
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+const config = {
   providers: [
     Credentials({
       name: "credentials",
@@ -54,6 +54,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true, // necesario en Vercel para callbacks correctos
   secret: process.env.NEXTAUTH_SECRET,
   debug: process.env.NODE_ENV === "development", // Solo debug en desarrollo
-});
+};
 
-export const { GET, POST } = handlers;
+export const { handlers, auth, signIn, signOut } = NextAuth(config);

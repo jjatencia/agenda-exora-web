@@ -1,15 +1,12 @@
 import withPWA from 'next-pwa';
 
 const nextConfig = {
-  // Optimizaciones para producción
+  // Configuración específica para Vercel
   experimental: {
     serverComponentsExternalPackages: ['next-auth'],
   },
-  // Asegurar que las variables de entorno estén disponibles
-  env: {
-    NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
-    NEXTAUTH_URL: process.env.NEXTAUTH_URL,
-  },
+  // No incluir variables de entorno secretas en el build
+  // Vercel las manejará automáticamente
 };
 
 export default withPWA({

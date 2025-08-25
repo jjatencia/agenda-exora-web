@@ -24,10 +24,31 @@ openssl rand -base64 32
 ## Configuración por Plataforma
 
 ### Vercel
+
+**IMPORTANTE**: Antes de hacer deploy, asegúrate de tener instaladas las dependencias correctas:
+
+```bash
+npm install
+```
+
 1. Ve a tu proyecto en Vercel Dashboard
 2. Settings → Environment Variables
-3. Añade las variables mencionadas arriba
-4. Redeploy tu aplicación
+3. Añade estas variables EXACTAMENTE:
+   ```
+   NEXTAUTH_SECRET=tu_secreto_generado_con_openssl
+   NEXTAUTH_URL=https://tu-proyecto.vercel.app
+   NEXT_PUBLIC_BASE_URL=https://tu-proyecto.vercel.app
+   ```
+4. Ve a Deployments → Redeploy
+5. Si el build falla, verifica que:
+   - Las variables de entorno estén configuradas correctamente
+   - NEXTAUTH_SECRET sea un string largo y aleatorio
+   - NEXTAUTH_URL coincida exactamente con tu dominio de Vercel
+
+**Solución de Problemas en Vercel**:
+- Si ves errores de "Cannot find module", borra `.next` y `node_modules` localmente
+- Asegúrate de que `next-auth` esté en versión 5.0.0-beta.4
+- Verifica que no tengas imports incorrectos en el archivo de autenticación
 
 ### Netlify
 1. Site settings → Environment variables
