@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
+import type { NextRequest } from "next/server";
+import { getToken } from "next-auth/jwt";
 
 // Middleware robusto: solo protege /(private) y nunca revienta la app.
-export default auth((req) => {
+export default async function middleware(req: NextRequest) {
   try {
+    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
     const { nextUrl } = req;
 
     // Solo proteger rutas bajo /(private)
-    if (!req.auth && nextUrl.pathname.startsWith("/(private)")) {
+    if (!token && nextUrl.pathname.startsWith("/(private)")) {
       const url = new URL("/login", nextUrl);
       url.searchParams.set("callbackUrl", nextUrl.pathname);
       return NextResponse.redirect(url);
@@ -19,7 +21,7 @@ export default auth((req) => {
     console.error("[MIDDLEWARE ERROR]", err);
     return NextResponse.next();
   }
-});
+}
 
 // Ejecutar SOLO en /(private) (evita tocar /, /login, /api, _next, etc.)
 export const config = {
