@@ -1,8 +1,8 @@
 'use client';
 
 import { DayPicker } from 'react-day-picker';
-import 'react-day-picker/dist/style.css';
 import { es } from 'date-fns/locale';
+import styles from './DayPicker.module.css';
 
 interface Props {
   selected: Date;
@@ -11,6 +11,13 @@ interface Props {
 
 export default function DayPickerModal({ selected, onSelect }: Props) {
   return (
-    <DayPicker mode="single" locale={es} selected={selected} onSelect={(d) => d && onSelect(d)} />
+    <div className={styles.container}>
+      <DayPicker
+        mode="single"
+        locale={es}
+        selected={selected}
+        onSelect={(d) => d && onSelect(d)}
+      />
+    </div>
   );
 }
