@@ -10,6 +10,14 @@ async function authenticateViaBackend(email: string, password: string) {
   return null;
 }
 
+if (!process.env.NEXTAUTH_SECRET) {
+  throw new Error("NEXTAUTH_SECRET no está definido en las variables de entorno");
+}
+
+if (!process.env.NEXTAUTH_URL) {
+  throw new Error("NEXTAUTH_URL no está definido en las variables de entorno");
+}
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     Credentials({
