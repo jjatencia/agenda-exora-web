@@ -21,8 +21,12 @@ export default function CardCarousel({ appointments, onRefresh }: Props) {
   }
 
   async function handleNoShow(id: string) {
-    await markNoShow(id);
-    onRefresh();
+    try {
+      await markNoShow(id);
+      onRefresh();
+    } catch (e) {
+      alert('Failed to mark appointment as no show');
+    }
   }
 
   return (
