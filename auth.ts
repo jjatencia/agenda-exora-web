@@ -37,13 +37,13 @@ const config = {
     error: "/login", // Redirigir errores al login
   },
   callbacks: {
-    async redirect({ url, baseUrl }) {
+    async redirect({ url, baseUrl }: { url: string; baseUrl: string }) {
       // Asegurar redirects seguros
       if (url.startsWith("/")) return `${baseUrl}${url}`;
       if (new URL(url).origin === baseUrl) return url;
       return baseUrl;
     },
-    async session({ session, token }) {
+    async session({ session, token }: { session: any; token: any }) {
       // Asegurar que la sesión tenga los datos necesarios
       if (token?.sub) {
         session.user.id = token.sub;
