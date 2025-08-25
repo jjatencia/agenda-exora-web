@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-primary: #555BF6;
+    --color-secondary: #FD778B;
+    --color-complement1: #FCFFA8;
+    --color-complement2: #B7F1F4;
+    --color-complement3: #D2E9FF;
+    --color-complement4: #02145C;
+  }
+}
+
+body {
+  @apply bg-white text-complement4 dark:bg-complement4 dark:text-white;
+}

@@ -1,0 +1,8 @@
+{
+  "name": "Agenda Exora",
+  "short_name": "Agenda",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#555BF6"
+}
