@@ -33,3 +33,5 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true, // necesario en Vercel para callbacks correctos
   secret: process.env.NEXTAUTH_SECRET,
 });
+
+export const { GET, POST } = handlers;
