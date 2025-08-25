@@ -3,10 +3,22 @@ import { signIn } from "@/auth";
 export default function LoginPage() {
   async function doLogin(formData: FormData) {
     "use server";
-    const email = String(formData.get("email") || "");
-    const password = String(formData.get("password") || "");
-    const redirectTo = "/agenda";
-    await signIn("credentials", { email, password, redirectTo });
+
+    try {
+      const email = String(formData.get("email") || "");
+      const password = String(formData.get("password") || "");
+      
+      // Usar ruta relativa más simple y confiable
+      await signIn("credentials", { 
+        email, 
+        password, 
+        redirectTo: "/agenda" 
+      });
+    } catch (error) {
+      console.error("[LOGIN ERROR]", error);
+      // NextAuth maneja los errores automáticamente
+    }
+
   }
 
   return (

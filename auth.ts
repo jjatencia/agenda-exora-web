@@ -1,4 +1,4 @@
-import NextAuth from "next-auth";
+import NextAuth, { type NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 
 // NOTA: Sustituye esta función por la llamada real a tu backend.
@@ -10,7 +10,7 @@ async function authenticateViaBackend(email: string, password: string) {
   return null;
 }
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+const config: NextAuthConfig = {
   providers: [
     Credentials({
       name: "credentials",
@@ -31,27 +31,34 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
     }),
   ],
-  session: { 
-    strategy: "jwt" as const 
-  },
+
+  session: { strategy: "jwt" as const },
   pages: {
-    signIn: "/login",
-    error: "/login",
+    signIn: "/login", // Usar ruta relativa siempre
+    error: "/login", // Redirigir errores al login
   },
   callbacks: {
     async redirect({ url, baseUrl }) {
+      // Asegurar redirects seguros
+
       if (url.startsWith("/")) return `${baseUrl}${url}`;
       if (new URL(url).origin === baseUrl) return url;
       return baseUrl;
     },
     async session({ session, token }) {
+      // Asegurar que la sesión tenga los datos necesarios
       if (token?.sub && session.user) {
-        (session.user as any).id = token.sub;
+        session.user.id = token.sub;
+
       }
       return session;
     },
   },
   trustHost: true,
   secret: process.env.NEXTAUTH_SECRET,
-  debug: process.env.NODE_ENV === "development",
-});
+
+  debug: process.env.NODE_ENV === "development", // Solo debug en desarrollo
+};
+
+export const { handlers, auth, signIn, signOut } = NextAuth(config);
+
