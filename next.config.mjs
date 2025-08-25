@@ -1,14 +1,6 @@
 import withPWA from 'next-pwa';
 
-const nextConfig = {
-  experimental: {
-    appDir: true,
-  },
-  i18n: {
-    locales: ['es-ES'],
-    defaultLocale: 'es-ES',
-  },
-};
+const nextConfig = {};
 
 export default withPWA({
   dest: 'public',
