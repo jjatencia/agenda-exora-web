@@ -47,7 +47,7 @@ export default function CardCarousel({ appointments, onRefresh }: Props) {
     setIsDragging(true);
   };
 
-  const handleDragEnd = (_, info) => {
+  const handleDragEnd = (_: any, info: any) => {
     setIsDragging(false);
     const offset = info.offset.x;
     const velocity = info.velocity.x;
