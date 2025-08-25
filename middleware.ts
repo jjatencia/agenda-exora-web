@@ -5,20 +5,30 @@ import { getToken } from "next-auth/jwt";
 // Protege /agenda y subrutas. NO uses nombres de carpetas con () en el matcher.
 export async function middleware(req: NextRequest) {
   try {
-    const token = await getToken({ req });
+    const token = await getToken({ 
+      req,
+      secret: process.env.NEXTAUTH_SECRET 
+    });
+    
     const { nextUrl } = req;
-    const basePath = `${nextUrl.basePath}${
-      nextUrl.locale !== nextUrl.defaultLocale ? `/${nextUrl.locale}` : ""
-    }`;
-    if (!token && nextUrl.pathname.startsWith(`${basePath}/agenda`)) {
-      const url = new URL(`${basePath}/login`, nextUrl);
-      url.searchParams.set("callbackUrl", nextUrl.pathname);
-      return NextResponse.redirect(url);
+    const pathname = nextUrl.pathname;
+    
+    // Simplificar la lógica del middleware
+    if (!token && pathname.startsWith("/agenda")) {
+      const loginUrl = new URL("/login", nextUrl);
+      loginUrl.searchParams.set("callbackUrl", pathname);
+      console.log("[MIDDLEWARE] Redirecting to login:", loginUrl.toString());
+      return NextResponse.redirect(loginUrl);
     }
+    
     return NextResponse.next();
   } catch (err) {
     console.error("[MIDDLEWARE ERROR]", err);
-    return NextResponse.next(); // nunca tirar 500
+    // En caso de error, redirigir al login como fallback seguro
+    if (req.nextUrl.pathname.startsWith("/agenda")) {
+      return NextResponse.redirect(new URL("/login", req.nextUrl));
+    }
+    return NextResponse.next();
   }
 }
 

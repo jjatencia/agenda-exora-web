@@ -19,21 +19,41 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: "Contraseña", type: "password" },
       },
       authorize: async (credentials) => {
-        const email = credentials?.email as string | undefined;
-        const password = credentials?.password as string | undefined;
-        const user = email && password ? await authenticateViaBackend(email, password) : null;
-        return user; // si null → login falla
+        try {
+          const email = credentials?.email as string | undefined;
+          const password = credentials?.password as string | undefined;
+          const user = email && password ? await authenticateViaBackend(email, password) : null;
+          return user; // si null → login falla
+        } catch (error) {
+          console.error("[AUTH ERROR]", error);
+          return null;
+        }
       },
     }),
   ],
   session: { strategy: "jwt" },
   pages: {
-    signIn: process.env.NEXT_PUBLIC_BASE_URL
-      ? new URL("/login", process.env.NEXT_PUBLIC_BASE_URL).pathname
-      : "/login", // redirección por defecto tras exigir login
+    signIn: "/login", // Usar ruta relativa siempre
+    error: "/login", // Redirigir errores al login
+  },
+  callbacks: {
+    async redirect({ url, baseUrl }) {
+      // Asegurar redirects seguros
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      if (new URL(url).origin === baseUrl) return url;
+      return baseUrl;
+    },
+    async session({ session, token }) {
+      // Asegurar que la sesión tenga los datos necesarios
+      if (token?.sub) {
+        session.user.id = token.sub;
+      }
+      return session;
+    },
   },
   trustHost: true, // necesario en Vercel para callbacks correctos
   secret: process.env.NEXTAUTH_SECRET,
+  debug: process.env.NODE_ENV === "development", // Solo debug en desarrollo
 });
 
 export const { GET, POST } = handlers;
