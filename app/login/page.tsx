@@ -1,30 +1,56 @@
-import { signIn } from "@/auth";
+"use client";
+
+import { signIn } from "next-auth/react";
+import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 export default function LoginPage() {
-  async function doLogin(formData: FormData) {
-    "use server";
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/agenda";
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
 
     try {
-      const email = String(formData.get("email") || "");
-      const password = String(formData.get("password") || "");
-      
-      // Usar ruta relativa más simple y confiable
-      await signIn("credentials", { 
-        email, 
-        password, 
-        redirectTo: "/agenda" 
+      const result = await signIn("credentials", {
+        email,
+        password,
+        callbackUrl,
+        redirect: false,
       });
+
+      if (result?.error) {
+        setError("Credenciales inválidas");
+      } else if (result?.url) {
+        window.location.href = result.url;
+      }
     } catch (error) {
       console.error("[LOGIN ERROR]", error);
-      // NextAuth maneja los errores automáticamente
+      setError("Error al iniciar sesión");
+    } finally {
+      setIsLoading(false);
     }
-
   }
 
   return (
     <main className="min-h-dvh grid place-items-center p-6">
-      <form action={doLogin} className="w-full max-w-sm space-y-4 border rounded-xl p-6 shadow">
+      <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4 border rounded-xl p-6 shadow">
         <h1 className="text-2xl font-semibold">Acceder</h1>
+        
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+            {error}
+          </div>
+        )}
+        
         <div className="space-y-2">
           <label htmlFor="email" className="block text-sm font-medium">
             Email
@@ -34,7 +60,8 @@ export default function LoginPage() {
             name="email"
             type="email"
             required
-            className="w-full rounded-md border px-3 py-2"
+            disabled={isLoading}
+            className="w-full rounded-md border px-3 py-2 disabled:opacity-50"
           />
         </div>
         <div className="space-y-2">
@@ -46,15 +73,17 @@ export default function LoginPage() {
             name="password"
             type="password"
             required
-            className="w-full rounded-md border px-3 py-2"
+            disabled={isLoading}
+            className="w-full rounded-md border px-3 py-2 disabled:opacity-50"
           />
         </div>
         <button
           type="submit"
-          className="w-full rounded-md px-3 py-2 font-medium text-white"
+          disabled={isLoading}
+          className="w-full rounded-md px-3 py-2 font-medium text-white disabled:opacity-50"
           style={{ backgroundColor: "#555BF6" }}
         >
-          Entrar
+          {isLoading ? "Entrando..." : "Entrar"}
         </button>
       </form>
     </main>
