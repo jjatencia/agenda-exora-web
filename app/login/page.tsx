@@ -1,53 +1,47 @@
-"use client";
+import { signIn } from "@/auth";
+import { redirect } from "next/navigation";
 
-import { signIn } from "next-auth/react";
-import { useState } from "react";
-import { useSearchParams } from "next/navigation";
+export default function LoginPage({ searchParams }: { searchParams: { error?: string, callbackUrl?: string } }) {
+  const error = searchParams?.error;
+  const callbackUrl = searchParams?.callbackUrl || "/agenda";
 
-export default function LoginPage() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/agenda";
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setIsLoading(true);
-    setError("");
-
-    const formData = new FormData(e.currentTarget);
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
-
+  async function handleLogin(formData: FormData) {
+    "use server";
+    
     try {
+      const email = formData.get("email") as string;
+      const password = formData.get("password") as string;
+      
+      console.log("[LOGIN] Attempting login for:", email);
+      
       const result = await signIn("credentials", {
         email,
         password,
-        callbackUrl,
-        redirect: false,
+        redirectTo: callbackUrl,
       });
-
-      if (result?.error) {
-        setError("Credenciales inválidas");
-      } else if (result?.url) {
-        window.location.href = result.url;
-      }
-    } catch (error) {
+      
+      console.log("[LOGIN] SignIn result:", result);
+    } catch (error: any) {
       console.error("[LOGIN ERROR]", error);
-      setError("Error al iniciar sesión");
-    } finally {
-      setIsLoading(false);
+      
+      // NextAuth v5 throws redirect errors, check if it's actually an error
+      if (error?.type === "CredentialsSignin") {
+        redirect(`/login?error=CredentialsSignin&callbackUrl=${encodeURIComponent(callbackUrl)}`);
+      }
+      
+      // Re-throw other errors to let NextAuth handle them
+      throw error;
     }
   }
 
   return (
     <main className="min-h-dvh grid place-items-center p-6">
-      <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4 border rounded-xl p-6 shadow">
+      <form action={handleLogin} className="w-full max-w-sm space-y-4 border rounded-xl p-6 shadow">
         <h1 className="text-2xl font-semibold">Acceder</h1>
         
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-            {error}
+            {error === "CredentialsSignin" ? "Credenciales inválidas" : "Error al iniciar sesión"}
           </div>
         )}
         
@@ -60,8 +54,8 @@ export default function LoginPage() {
             name="email"
             type="email"
             required
-            disabled={isLoading}
-            className="w-full rounded-md border px-3 py-2 disabled:opacity-50"
+            defaultValue="admin@example.com"
+            className="w-full rounded-md border px-3 py-2"
           />
         </div>
         <div className="space-y-2">
@@ -73,17 +67,16 @@ export default function LoginPage() {
             name="password"
             type="password"
             required
-            disabled={isLoading}
-            className="w-full rounded-md border px-3 py-2 disabled:opacity-50"
+            defaultValue="password"
+            className="w-full rounded-md border px-3 py-2"
           />
         </div>
         <button
           type="submit"
-          disabled={isLoading}
-          className="w-full rounded-md px-3 py-2 font-medium text-white disabled:opacity-50"
+          className="w-full rounded-md px-3 py-2 font-medium text-white"
           style={{ backgroundColor: "#555BF6" }}
         >
-          {isLoading ? "Entrando..." : "Entrar"}
+          Entrar
         </button>
       </form>
     </main>
