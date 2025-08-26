@@ -159,6 +159,19 @@ export default function AgendaClient({ userEmail }: Props) {
           </div>
         ) : appointments && appointments.length > 0 ? (
           <div className="space-y-6">
+            {/* Carrusel de tarjetas */}
+            <div className="space-y-4">
+              <h2 className="font-heading text-lg font-semibold text-gray-800 text-center">
+                Citas del día
+              </h2>
+              <CardCarousel
+                appointments={appointments}
+                onRefresh={handleRefresh}
+                onAttended={handleAttended}
+                onNoShow={handleNoShow}
+              />
+            </div>
+
             {/* Resumen del día */}
             <div className="bg-white rounded-lg p-4 shadow-sm">
               <h2 className="font-heading text-lg font-semibold text-gray-800 mb-2">
@@ -186,19 +199,6 @@ export default function AgendaClient({ userEmail }: Props) {
                   {appointments.filter(a => a.noShow).length}
                 </span>
               </div>
-            </div>
-
-            {/* Carrusel de tarjetas */}
-            <div className="space-y-4">
-              <h2 className="font-heading text-lg font-semibold text-gray-800 text-center">
-                Citas del día
-              </h2>
-              <CardCarousel
-                appointments={appointments}
-                onRefresh={handleRefresh}
-                onAttended={handleAttended}
-                onNoShow={handleNoShow}
-              />
             </div>
           </div>
         ) : (
