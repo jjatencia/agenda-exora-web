@@ -83,7 +83,6 @@ export default function CardCarousel({ appointments, onRefresh }: Props) {
       {/* Contenedor del carrusel */}
       <div className="overflow-hidden px-4">
         <motion.div
-          className="flex gap-4"
           drag="x"
           dragConstraints={{
             left: -maxIndex * totalCardWidth,
@@ -100,6 +99,8 @@ export default function CardCarousel({ appointments, onRefresh }: Props) {
           onDragEnd={handleDragEnd}
           style={{
             cursor: isDragging ? 'grabbing' : 'grab',
+            display: 'flex',
+            gap: '1rem',
           }}
         >
           {appointments.map((appointment) => (
