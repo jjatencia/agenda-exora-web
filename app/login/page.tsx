@@ -20,19 +20,21 @@ export default function LoginPage() {
     const password = formData.get("password") as string;
 
     try {
+      console.log("[LOGIN ATTEMPT]", { email, callbackUrl });
       const result = await signIn("credentials", {
         email,
         password,
-        callbackUrl,
         redirect: false,
+        // No usar callbackUrl aquí para evitar el error de parsing
       });
 
       if (result?.error) {
         console.error("[LOGIN RESULT ERROR]", result.error);
         setError(`Error: ${result.error}`);
-      } else if (result?.url) {
-        console.log("[LOGIN SUCCESS]", "Redirecting to:", result.url);
-        window.location.href = result.url;
+      } else if (result?.ok) {
+        console.log("[LOGIN SUCCESS]", "Redirecting to:", callbackUrl);
+        // Manejar redirección manualmente
+        window.location.href = callbackUrl;
       } else {
         console.error("[LOGIN UNEXPECTED]", result);
         setError("Respuesta inesperada del servidor");
