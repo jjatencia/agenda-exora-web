@@ -4,6 +4,27 @@ import { useState } from 'react';
 import { Appointment } from '@/types';
 import ConfirmationModal from './ConfirmationModal';
 
+// Añadir estilos CSS para el flip 3D
+const flipStyles = `
+  .transform-style-preserve-3d {
+    transform-style: preserve-3d;
+  }
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+  .rotate-y-180 {
+    transform: rotateY(180deg);
+  }
+`;
+
+// Inyectar estilos si no existen
+if (typeof window !== 'undefined' && !document.getElementById('flip-styles')) {
+  const styleSheet = document.createElement('style');
+  styleSheet.id = 'flip-styles';
+  styleSheet.textContent = flipStyles;
+  document.head.appendChild(styleSheet);
+}
+
 interface Props {
   appointment: Appointment;
   onNoShow: (id: string) => void;
@@ -14,6 +35,7 @@ export default function AppointmentCard({ appointment, onNoShow, onAttended }: P
   const [isAttended, setIsAttended] = useState(appointment.attended || false);
   const [lastTap, setLastTap] = useState(0);
   const [showNoShowModal, setShowNoShowModal] = useState(false);
+  const [isFlipped, setIsFlipped] = useState(false);
   // Formatear fecha en DD/MM/AAAA
   const formatDate = (dateISO: string) => {
     const date = new Date(dateISO);
@@ -72,20 +94,57 @@ export default function AppointmentCard({ appointment, onNoShow, onAttended }: P
     setShowNoShowModal(false);
   };
 
-  return (
+  // Verificar si hay comentarios
+  const hasComments = appointment.comentariosCita || appointment.comentariosCliente;
+
+  // Manejar click en el icono de comentarios
+  const handleCommentsClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsFlipped(!isFlipped);
+  };
+
+    return (
     <div 
-      className={`bg-white rounded-xl shadow-lg border border-gray-100 p-6 flex-shrink-0 relative overflow-hidden transition-all duration-300 ${
-        isAttended ? 'opacity-50 bg-gray-50' : ''
-              } ${appointment.noShow ? 'bg-secondary bg-opacity-10 border-secondary border-opacity-30' : ''}`}
-      style={{ width: '100%', maxWidth: '400px' }}
-      onClick={handleDoubleTap}
+      className="flex-shrink-0 relative"
+      style={{ 
+        width: '100%', 
+        maxWidth: '400px', 
+        height: '400px',
+        perspective: '1000px' 
+      }}
     >
+      {/* Contenedor flip */}
+      <div 
+        className={`relative w-full h-full transition-transform duration-700 transform-style-preserve-3d ${
+          isFlipped ? 'rotate-y-180' : ''
+        }`}
+        style={{ transformStyle: 'preserve-3d' }}
+      >
+        {/* Cara frontal */}
+        <div 
+          className={`absolute inset-0 backface-hidden bg-white rounded-xl shadow-lg border border-gray-100 p-6 overflow-hidden transition-all duration-300 ${
+            isAttended ? 'opacity-50 bg-gray-50' : ''
+          } ${appointment.noShow ? 'bg-secondary bg-opacity-10 border-secondary border-opacity-30' : ''}`}
+          style={{ backfaceVisibility: 'hidden' }}
+          onClick={handleDoubleTap}
+        >
       {/* Accent line en el top */}
       <div className={`absolute top-0 left-0 right-0 h-1 ${
         isAttended ? 'bg-complement2' : 
         appointment.noShow ? 'bg-secondary' : 
         'bg-gradient-to-r from-primary to-secondary'
       }`}></div>
+
+      {/* Indicador de comentarios */}
+      {hasComments && (
+        <button
+          onClick={handleCommentsClick}
+          className="absolute top-4 right-4 w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center shadow-lg hover:bg-complement4 transition-all duration-300 transform hover:scale-110 z-10"
+          title="Ver comentarios"
+        >
+          <span className="text-lg">💬</span>
+        </button>
+      )}
       
       {/* Header con nombre del cliente */}
       <div className="mb-4">
@@ -184,6 +243,75 @@ export default function AppointmentCard({ appointment, onNoShow, onAttended }: P
       >
         {appointment.noShow ? 'Ya marcado como ausente' : 'No se ha presentado a la cita'}
       </button>
+      </div>
+
+      {/* Cara trasera - Comentarios */}
+      <div 
+        className="absolute inset-0 bg-gradient-to-br from-complement3 to-white rounded-xl shadow-lg border border-gray-100 p-6 overflow-y-auto"
+        style={{ 
+          backfaceVisibility: 'hidden',
+          transform: 'rotateY(180deg)'
+        }}
+      >
+        {/* Header de comentarios */}
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="font-heading text-xl font-semibold text-primary">
+            💬 Comentarios
+          </h3>
+          <button
+            onClick={handleCommentsClick}
+            className="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center hover:bg-complement4 transition-all duration-300"
+            title="Volver"
+          >
+            <span className="text-sm">✕</span>
+          </button>
+        </div>
+
+        {/* Cliente info header */}
+        <div className="mb-6 p-4 bg-white rounded-lg shadow-sm">
+          <h4 className="font-semibold text-gray-800">
+            {appointment.clienteNombre} {appointment.clienteApellidos}
+          </h4>
+          <p className="text-sm text-gray-600">{formatDate(appointment.fechaISO)} - {appointment.horaInicio}</p>
+        </div>
+
+        {/* Comentarios de la cita */}
+        {appointment.comentariosCita && (
+          <div className="mb-6">
+            <div className="flex items-center mb-3">
+              <span className="text-2xl mr-2">📅</span>
+              <h4 className="font-semibold text-secondary">Comentarios de la cita</h4>
+            </div>
+            <div className="bg-secondary bg-opacity-10 border border-secondary border-opacity-30 rounded-lg p-4">
+              <p className="text-gray-800 leading-relaxed">{appointment.comentariosCita}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Comentarios del cliente */}
+        {appointment.comentariosCliente && (
+          <div className="mb-6">
+            <div className="flex items-center mb-3">
+              <span className="text-2xl mr-2">👤</span>
+              <h4 className="font-semibold text-complement4">Comentarios del cliente</h4>
+            </div>
+            <div className="bg-complement2 bg-opacity-20 border border-complement2 border-opacity-50 rounded-lg p-4">
+              <p className="text-gray-800 leading-relaxed">{appointment.comentariosCliente}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Botón para volver */}
+        <div className="mt-auto pt-4">
+          <button
+            onClick={handleCommentsClick}
+            className="w-full py-3 px-4 bg-primary text-white rounded-lg font-medium text-sm hover:bg-complement4 transition-all duration-300 active:scale-95"
+          >
+            🔄 Volver a la cita
+          </button>
+        </div>
+      </div>
+      </div>
 
       {/* Modal de confirmación */}
       <ConfirmationModal

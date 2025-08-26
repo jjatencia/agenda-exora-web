@@ -14,6 +14,8 @@ export const appointments: Appointment[] = [
     fechaISO: '2025-08-25',
     horaInicio: '10:00',
     descuentos: ['Promo verano', 'Cliente VIP'],
+    comentariosCita: 'Llegará 15 minutos tarde por trabajo. Quiere el degradado más corto que la última vez.',
+    comentariosCliente: 'Cliente VIP. Prefiere silencio durante el servicio. Siempre pide gel extra fuerte.',
   },
   {
     id: '2',
@@ -40,6 +42,7 @@ export const appointments: Appointment[] = [
     fechaISO: '2025-08-25',
     horaInicio: '12:30',
     descuentos: ['Pack completo'],
+    comentariosCliente: 'Primera vez en la barbería. Es muy tímido, tratar con paciencia.',
   },
   {
     id: '4',
@@ -65,6 +68,7 @@ export const appointments: Appointment[] = [
     profesional: 'Sara López',
     fechaISO: '2025-08-25',
     horaInicio: '15:30',
+    comentariosCita: 'Traer productos específicos sin sulfatos. Alergia a ciertos químicos.',
   },
   {
     id: '6',

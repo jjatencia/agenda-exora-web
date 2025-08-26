@@ -12,4 +12,6 @@ export type Appointment = {
   descuentos?: string[];
   noShow?: boolean;
   attended?: boolean;
+  comentariosCita?: string; // Comentarios específicos de esta cita
+  comentariosCliente?: string; // Comentarios permanentes del cliente
 };
