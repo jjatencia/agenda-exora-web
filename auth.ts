@@ -42,32 +42,15 @@ const config: NextAuthConfig = {
 
   session: { strategy: "jwt" as const },
   pages: {
-    signIn: "/login", // Usar ruta relativa siempre
-    error: "/login", // Redirigir errores al login
+    signIn: "/login",
+    error: "/login",
   },
   callbacks: {
     async redirect({ url, baseUrl }) {
-      // Asegurar redirects seguros
       console.log("[AUTH REDIRECT]", { url, baseUrl });
       
-      // Si es una URL relativa, construir la URL completa
-      if (url.startsWith("/")) {
-        const fullUrl = `${baseUrl}${url}`;
-        console.log("[AUTH REDIRECT] Using relative URL:", fullUrl);
-        return fullUrl;
-      }
-      
-      // Si la URL es del mismo origin, permitirla
-      try {
-        if (new URL(url).origin === baseUrl) return url;
-      } catch (e) {
-        console.error("[AUTH REDIRECT] URL parsing error:", e);
-      }
-      
-      // Por defecto, redirigir a la agenda
-      const defaultUrl = `${baseUrl}/agenda`;
-      console.log("[AUTH REDIRECT] Using default URL:", defaultUrl);
-      return defaultUrl;
+      // Siempre redirigir a la agenda después del login exitoso
+      return "/agenda";
     },
     async session({ session, token }) {
       // Asegurar que la sesión tenga los datos necesarios

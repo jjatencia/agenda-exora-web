@@ -20,25 +20,14 @@ export default function LoginPage() {
     const password = formData.get("password") as string;
 
     try {
-      console.log("[LOGIN ATTEMPT]", { email, callbackUrl });
-      const result = await signIn("credentials", {
+      console.log("[LOGIN ATTEMPT]", { email });
+      
+      // Usar redirect automático de NextAuth para evitar problemas de URL
+      await signIn("credentials", {
         email,
         password,
-        redirect: false,
-        // No usar callbackUrl aquí para evitar el error de parsing
+        redirect: true, // Dejar que NextAuth maneje la redirección
       });
-
-      if (result?.error) {
-        console.error("[LOGIN RESULT ERROR]", result.error);
-        setError(`Error: ${result.error}`);
-      } else if (result?.ok) {
-        console.log("[LOGIN SUCCESS]", "Redirecting to:", callbackUrl);
-        // Manejar redirección manualmente
-        window.location.href = callbackUrl;
-      } else {
-        console.error("[LOGIN UNEXPECTED]", result);
-        setError("Respuesta inesperada del servidor");
-      }
     } catch (error) {
       console.error("[LOGIN CATCH ERROR]", error);
       setError(`Error al iniciar sesión: ${error instanceof Error ? error.message : String(error)}`);
