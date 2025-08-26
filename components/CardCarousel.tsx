@@ -18,7 +18,7 @@ export default function CardCarousel({ appointments, onRefresh, onAttended, onNo
   const [isDragging, setIsDragging] = useState(false);
   
   // Responsive card width for mobile - debe coincidir con AppointmentCard
-  const cardWidth = typeof window !== 'undefined' ? window.innerWidth - 96 : 320; // calc(100vw - 96px)
+  const cardWidth = typeof window !== 'undefined' ? window.innerWidth - 48 : 320; // calc(100vw - 48px)
   const gap = 32; // gap-8 (32px) - 2rem  
   const totalCardWidth = cardWidth + gap;
   const maxIndex = Math.max(appointments.length - 1, 0);
@@ -128,8 +128,8 @@ export default function CardCarousel({ appointments, onRefresh, onAttended, onNo
             cursor: isDragging ? 'grabbing' : 'grab',
             display: 'flex',
             gap: '2rem',
-            paddingLeft: '16px',
-            paddingRight: '16px',
+            paddingLeft: '24px',
+            paddingRight: '24px',
           }}
         >
           {appointments.map((appointment) => (
