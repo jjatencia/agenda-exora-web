@@ -48,7 +48,7 @@ export default function AppointmentCard({ appointment, onNoShow, onAttended }: P
       className={`bg-white rounded-xl shadow-lg border border-gray-100 p-6 flex-shrink-0 relative overflow-hidden transition-all duration-300 ${
         isAttended ? 'opacity-50 bg-gray-50' : ''
       } ${appointment.noShow ? 'bg-red-50 border-red-200' : ''}`}
-      style={{ width: 'calc(100vw - 48px)', maxWidth: '400px', minWidth: 'calc(100vw - 48px)' }}
+      style={{ width: '100%', maxWidth: '400px' }}
       onClick={handleDoubleTap}
     >
       {/* Accent line en el top */}
