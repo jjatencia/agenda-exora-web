@@ -112,7 +112,7 @@ export default function AppointmentCard({ appointment, onNoShow, onAttended }: P
       style={{ 
         width: '100%', 
         maxWidth: '400px', 
-        minHeight: '420px',
+        minHeight: '480px',
         perspective: '1000px' 
       }}
     >
