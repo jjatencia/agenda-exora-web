@@ -112,7 +112,7 @@ export default function AppointmentCard({ appointment, onNoShow, onAttended }: P
       style={{ 
         width: '100%', 
         maxWidth: '400px', 
-        minHeight: '360px',
+        minHeight: '340px',
         perspective: '1000px' 
       }}
     >
@@ -125,7 +125,7 @@ export default function AppointmentCard({ appointment, onNoShow, onAttended }: P
       >
         {/* Cara frontal */}
         <div 
-          className={`absolute inset-0 backface-hidden bg-white rounded-xl shadow-lg border border-gray-100 p-6 overflow-hidden transition-all duration-300 ${
+          className={`absolute inset-0 backface-hidden bg-white rounded-xl shadow-lg border border-gray-100 p-4 overflow-hidden transition-all duration-300 ${
             isAttended ? 'opacity-50 bg-gray-50' : ''
           } ${appointment.noShow ? 'bg-secondary bg-opacity-10 border-secondary border-opacity-30' : ''}`}
           style={{ backfaceVisibility: 'hidden' }}
@@ -139,7 +139,7 @@ export default function AppointmentCard({ appointment, onNoShow, onAttended }: P
       }`}></div>
 
       {/* Header con nombre del cliente */}
-      <div className="mb-4">
+      <div className="mb-3">
         <div className="flex items-center justify-between">
           <h2 className="font-heading text-xl font-semibold text-primary mb-1">
             {appointment.clienteNombre} {appointment.clienteApellidos}
@@ -165,7 +165,7 @@ export default function AppointmentCard({ appointment, onNoShow, onAttended }: P
       </div>
 
       {/* Servicio principal */}
-      <div className="mb-4 p-3 bg-complement3 rounded-lg">
+      <div className="mb-3 p-3 bg-complement3 rounded-lg">
         <h3 className="font-medium text-complement4 text-lg mb-1">
           {appointment.servicio}
         </h3>
@@ -251,7 +251,7 @@ export default function AppointmentCard({ appointment, onNoShow, onAttended }: P
 
       {/* Cara trasera - Comentarios */}
       <div 
-        className="absolute inset-0 bg-gradient-to-br from-complement3 to-white rounded-xl shadow-lg border border-gray-100 p-6 overflow-y-auto"
+        className="absolute inset-0 bg-gradient-to-br from-complement3 to-white rounded-xl shadow-lg border border-gray-100 p-4 overflow-y-auto"
         style={{ 
           backfaceVisibility: 'hidden',
           transform: 'rotateY(180deg)'

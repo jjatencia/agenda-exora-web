@@ -125,8 +125,8 @@ export default function CardCarousel({ appointments, onRefresh, onAttended, onNo
         </motion.div>
       </div>
 
-      {/* Navegación al final */}
-      <div className="mt-6 space-y-3">
+      {/* Solo indicadores - sin botones */}
+      <div className="mt-4 space-y-2">
         {/* Indicadores de posición */}
         <div className="flex justify-center items-center space-x-2">
           {appointments.map((_, i) => (
@@ -143,32 +143,6 @@ export default function CardCarousel({ appointments, onRefresh, onAttended, onNo
         {/* Contador de citas */}
         <div className="text-center text-sm text-gray-500">
           Cita {index + 1} de {appointments.length}
-        </div>
-
-        {/* Botones de navegación opcionales */}
-        <div className="flex justify-center items-center space-x-4">
-          <button
-            className={`p-2 rounded-full transition-all ${
-              index === 0
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-primary text-white hover:bg-opacity-90 shadow-md'
-            }`}
-            onClick={() => setIndex(Math.max(index - 1, 0))}
-            disabled={index === 0}
-          >
-            ←
-          </button>
-          <button
-            className={`p-2 rounded-full transition-all ${
-              index === maxIndex
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-primary text-white hover:bg-opacity-90 shadow-md'
-            }`}
-            onClick={() => setIndex(Math.min(index + 1, maxIndex))}
-            disabled={index === maxIndex}
-          >
-            →
-          </button>
         </div>
       </div>
     </div>
