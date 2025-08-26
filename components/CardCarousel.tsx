@@ -9,9 +9,10 @@ import { markNoShow } from '@/lib/api';
 interface Props {
   appointments: Appointment[];
   onRefresh: () => void;
+  onAttended?: (appointmentId: string) => void;
 }
 
-export default function CardCarousel({ appointments, onRefresh }: Props) {
+export default function CardCarousel({ appointments, onRefresh, onAttended }: Props) {
   const [index, setIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   
@@ -45,9 +46,11 @@ export default function CardCarousel({ appointments, onRefresh }: Props) {
     }
   }
 
-  function handleAttended(id: string) {
-    // Simular marcar como atendido (en una app real esto sería una llamada a API)
-    onRefresh(); // Esto actualizará el estado local
+  function handleAttendedLocal(id: string) {
+    // Usar la función externa para actualizar el estado
+    if (onAttended) {
+      onAttended(id);
+    }
     
     // Mostrar mensaje de éxito
     const toast = document.createElement('div');
@@ -95,7 +98,7 @@ export default function CardCarousel({ appointments, onRefresh }: Props) {
       </div>
 
       {/* Contenedor del carrusel */}
-      <div className="overflow-hidden px-4 max-w-full">
+      <div className="overflow-hidden max-w-full">
         <motion.div
           drag="x"
           dragConstraints={{
@@ -115,6 +118,8 @@ export default function CardCarousel({ appointments, onRefresh }: Props) {
             cursor: isDragging ? 'grabbing' : 'grab',
             display: 'flex',
             gap: '1rem',
+            paddingLeft: '16px',
+            paddingRight: '16px',
           }}
         >
           {appointments.map((appointment) => (
@@ -122,7 +127,7 @@ export default function CardCarousel({ appointments, onRefresh }: Props) {
               key={appointment.id}
               appointment={appointment}
               onNoShow={handleNoShow}
-              onAttended={handleAttended}
+              onAttended={handleAttendedLocal}
             />
           ))}
         </motion.div>

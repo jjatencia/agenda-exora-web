@@ -6,6 +6,7 @@ import CardCarousel from '@/components/CardCarousel';
 import NoData from '@/components/NoData';
 import DayPicker from '@/components/DayPicker';
 import useAppointments from '@/hooks/useAppointments';
+import { Appointment } from '@/types';
 
 interface Props {
   userEmail?: string | null;
@@ -29,9 +30,25 @@ export default function AgendaClient({ userEmail }: Props) {
     return date.toISOString().split('T')[0];
   };
 
-  const { data: appointments, isLoading, isError, mutate } = useAppointments(
+  const { data: appointmentsFromAPI, isLoading, isError, mutate } = useAppointments(
     formatDateForAPI(selectedDate)
   );
+
+  // Estado local para manejar el estado "attended" de las citas
+  const [localAppointments, setLocalAppointments] = useState<Appointment[]>([]);
+
+  // Sincronizar datos de la API con el estado local
+  useEffect(() => {
+    if (appointmentsFromAPI) {
+      setLocalAppointments(appointmentsFromAPI.map(apt => ({
+        ...apt,
+        attended: apt.attended || false
+      })));
+    }
+  }, [appointmentsFromAPI]);
+
+  // Usar el estado local para mostrar las citas
+  const appointments = localAppointments;
 
   // Guardar la fecha seleccionada en localStorage
   useEffect(() => {
@@ -47,6 +64,16 @@ export default function AgendaClient({ userEmail }: Props) {
 
   const handleRefresh = () => {
     mutate();
+  };
+
+  const handleAttended = (appointmentId: string) => {
+    setLocalAppointments(prev => 
+      prev.map(apt => 
+        apt.id === appointmentId 
+          ? { ...apt, attended: true }
+          : apt
+      )
+    );
   };
 
   if (isError) {
@@ -159,6 +186,7 @@ export default function AgendaClient({ userEmail }: Props) {
               <CardCarousel
                 appointments={appointments}
                 onRefresh={handleRefresh}
+                onAttended={handleAttended}
               />
             </div>
           </div>
