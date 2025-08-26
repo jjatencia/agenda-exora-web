@@ -103,6 +103,37 @@ export default function CardCarousel({ appointments, onRefresh, onAttended, onNo
         ))}
       </div>
 
+      {/* Contador de citas */}
+      <div className="text-center mb-4 text-sm text-gray-500">
+        Cita {index + 1} de {appointments.length}
+      </div>
+
+      {/* Botones de navegación opcionales */}
+      <div className="flex justify-center items-center mb-6 space-x-4">
+        <button
+          className={`p-2 rounded-full transition-all ${
+            index === 0
+              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              : 'bg-primary text-white hover:bg-opacity-90 shadow-md'
+          }`}
+          onClick={() => setIndex(Math.max(index - 1, 0))}
+          disabled={index === 0}
+        >
+          ←
+        </button>
+        <button
+          className={`p-2 rounded-full transition-all ${
+            index === maxIndex
+              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              : 'bg-primary text-white hover:bg-opacity-90 shadow-md'
+          }`}
+          onClick={() => setIndex(Math.min(index + 1, maxIndex))}
+          disabled={index === maxIndex}
+        >
+          →
+        </button>
+      </div>
+
       {/* Contenedor del carrusel */}
       <div className="overflow-hidden max-w-full">
         <motion.div
@@ -136,37 +167,6 @@ export default function CardCarousel({ appointments, onRefresh, onAttended, onNo
             />
           ))}
         </motion.div>
-      </div>
-
-      {/* Contador de citas */}
-      <div className="text-center mt-4 text-sm text-gray-500">
-        Cita {index + 1} de {appointments.length}
-      </div>
-
-      {/* Botones de navegación opcionales */}
-      <div className="flex justify-center items-center mt-4 space-x-4">
-        <button
-          className={`p-2 rounded-full transition-all ${
-            index === 0
-              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-              : 'bg-primary text-white hover:bg-opacity-90 shadow-md'
-          }`}
-          onClick={() => setIndex(Math.max(index - 1, 0))}
-          disabled={index === 0}
-        >
-          ←
-        </button>
-        <button
-          className={`p-2 rounded-full transition-all ${
-            index === maxIndex
-              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-              : 'bg-primary text-white hover:bg-opacity-90 shadow-md'
-          }`}
-          onClick={() => setIndex(Math.min(index + 1, maxIndex))}
-          disabled={index === maxIndex}
-        >
-          →
-        </button>
       </div>
     </div>
   );

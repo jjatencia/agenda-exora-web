@@ -96,6 +96,15 @@ export default function AppointmentCard({ appointment, onNoShow, onAttended }: P
 
   // Verificar si hay comentarios
   const hasComments = appointment.comentariosCita || appointment.comentariosCliente;
+  
+  // Debug: log para verificar comentarios
+  console.log('Appointment data:', {
+    id: appointment.id,
+    name: appointment.clienteNombre,
+    comentariosCita: appointment.comentariosCita,
+    comentariosCliente: appointment.comentariosCliente,
+    hasComments
+  });
 
   // Manejar click en el icono de comentarios
   const handleCommentsClick = (e: React.MouseEvent) => {
@@ -109,7 +118,7 @@ export default function AppointmentCard({ appointment, onNoShow, onAttended }: P
       style={{ 
         width: '100%', 
         maxWidth: '400px', 
-        height: '400px',
+        minHeight: '420px',
         perspective: '1000px' 
       }}
     >
