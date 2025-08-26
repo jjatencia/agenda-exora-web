@@ -20,9 +20,17 @@ const config: NextAuthConfig = {
       },
       authorize: async (credentials) => {
         try {
+          console.log("[AUTH ATTEMPT]", { email: credentials?.email });
           const email = credentials?.email as string | undefined;
           const password = credentials?.password as string | undefined;
-          const user = email && password ? await authenticateViaBackend(email, password) : null;
+          
+          if (!email || !password) {
+            console.error("[AUTH ERROR]", "Missing credentials");
+            return null;
+          }
+          
+          const user = await authenticateViaBackend(email, password);
+          console.log("[AUTH RESULT]", user ? "Success" : "Failed");
           return user; // si null → login falla
         } catch (error) {
           console.error("[AUTH ERROR]", error);

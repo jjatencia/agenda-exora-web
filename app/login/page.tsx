@@ -28,13 +28,18 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        setError("Credenciales inválidas");
+        console.error("[LOGIN RESULT ERROR]", result.error);
+        setError(`Error: ${result.error}`);
       } else if (result?.url) {
+        console.log("[LOGIN SUCCESS]", "Redirecting to:", result.url);
         window.location.href = result.url;
+      } else {
+        console.error("[LOGIN UNEXPECTED]", result);
+        setError("Respuesta inesperada del servidor");
       }
     } catch (error) {
-      console.error("[LOGIN ERROR]", error);
-      setError("Error al iniciar sesión");
+      console.error("[LOGIN CATCH ERROR]", error);
+      setError(`Error al iniciar sesión: ${error.message || error}`);
     } finally {
       setIsLoading(false);
     }
