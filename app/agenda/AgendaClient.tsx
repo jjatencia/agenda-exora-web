@@ -111,10 +111,10 @@ export default function AgendaClient({ userEmail }: Props) {
     <div className="min-h-screen bg-gradient-to-br from-complement3 to-white">
       {/* Header con branding */}
       <header className="bg-white shadow-sm border-b border-gray-100">
-        <div className="max-w-md mx-auto p-4">
-          <div className="flex items-center justify-between mb-4">
+        <div className="max-w-md mx-auto p-3">
+          <div className="flex items-center justify-between mb-3">
             <div>
-              <h1 className="font-heading text-2xl font-bold text-primary">
+              <h1 className="font-heading text-lg font-semibold text-primary">
                 Agenda Barbería
               </h1>
               {userEmail && (
@@ -160,10 +160,7 @@ export default function AgendaClient({ userEmail }: Props) {
         ) : appointments && appointments.length > 0 ? (
           <div className="space-y-6">
             {/* Carrusel de tarjetas */}
-            <div className="space-y-4">
-              <h2 className="font-heading text-lg font-semibold text-gray-800 text-center">
-                Citas del día
-              </h2>
+            <div>
               <CardCarousel
                 appointments={appointments}
                 onRefresh={handleRefresh}

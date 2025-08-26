@@ -112,7 +112,7 @@ export default function AppointmentCard({ appointment, onNoShow, onAttended }: P
       style={{ 
         width: '100%', 
         maxWidth: '400px', 
-        minHeight: '480px',
+        minHeight: '520px',
         perspective: '1000px' 
       }}
     >
@@ -309,15 +309,7 @@ export default function AppointmentCard({ appointment, onNoShow, onAttended }: P
           </div>
         )}
 
-        {/* Botón para volver */}
-        <div className="mt-auto pt-4">
-          <button
-            onClick={handleCommentsClick}
-            className="w-full py-3 px-4 bg-primary text-white rounded-lg font-medium text-sm hover:bg-complement4 transition-all duration-300 active:scale-95"
-          >
-            🔄 Volver a la cita
-          </button>
-        </div>
+
       </div>
       </div>
 
