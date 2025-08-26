@@ -70,7 +70,7 @@ export default function AgendaClient({ userEmail }: Props) {
     setLocalAppointments(prev => 
       prev.map(apt => 
         apt.id === appointmentId 
-          ? { ...apt, attended: true }
+          ? { ...apt, attended: !apt.attended } // Toggle el estado
           : apt
       )
     );

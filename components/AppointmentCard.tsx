@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Appointment } from '@/types';
+import ConfirmationModal from './ConfirmationModal';
 
 interface Props {
   appointment: Appointment;
@@ -12,6 +13,7 @@ interface Props {
 export default function AppointmentCard({ appointment, onNoShow, onAttended }: Props) {
   const [isAttended, setIsAttended] = useState(appointment.attended || false);
   const [lastTap, setLastTap] = useState(0);
+  const [showNoShowModal, setShowNoShowModal] = useState(false);
   // Formatear fecha en DD/MM/AAAA
   const formatDate = (dateISO: string) => {
     const date = new Date(dateISO);
@@ -22,16 +24,24 @@ export default function AppointmentCard({ appointment, onNoShow, onAttended }: P
     });
   };
 
-  // Manejar doble tap para marcar como atendido
+  // Manejar doble tap para toggle estado atendido
   const handleDoubleTap = () => {
     const now = Date.now();
     const DOUBLE_TAP_DELAY = 300;
     
     if (now - lastTap < DOUBLE_TAP_DELAY) {
-      // Es un doble tap
-      if (!isAttended && !appointment.noShow && onAttended) {
-        setIsAttended(true);
+      // Es un doble tap - toggle estado atendido
+      if (!appointment.noShow && onAttended) {
+        const newAttendedState = !isAttended;
+        setIsAttended(newAttendedState);
         onAttended(appointment.id);
+        
+        // Mostrar toast apropiado
+        const toast = document.createElement('div');
+        toast.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+        toast.textContent = newAttendedState ? 'Cliente atendido ✅' : 'Estado revertido ↩️';
+        document.body.appendChild(toast);
+        setTimeout(() => document.body.removeChild(toast), 2000);
       }
     }
     setLastTap(now);
@@ -41,6 +51,25 @@ export default function AppointmentCard({ appointment, onNoShow, onAttended }: P
   const handlePhoneCall = (e: React.MouseEvent) => {
     e.stopPropagation();
     window.location.href = `tel:${appointment.telefono}`;
+  };
+
+  // Manejar click en botón "No se ha presentado"
+  const handleNoShowClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowNoShowModal(true);
+  };
+
+  // Confirmar "No se ha presentado"
+  const handleConfirmNoShow = () => {
+    if (onNoShow) {
+      onNoShow(appointment.id);
+    }
+    setShowNoShowModal(false);
+  };
+
+  // Cancelar "No se ha presentado"
+  const handleCancelNoShow = () => {
+    setShowNoShowModal(false);
   };
 
   return (
@@ -135,10 +164,10 @@ export default function AppointmentCard({ appointment, onNoShow, onAttended }: P
       )}
 
       {/* Instrucciones y botón de acción */}
-      {!isAttended && !appointment.noShow && (
+      {!appointment.noShow && (
         <div className="mb-3 p-2 bg-blue-50 border border-blue-200 rounded-lg">
           <span className="text-blue-600 text-xs font-medium">
-            💡 Doble tap para marcar como atendido
+            💡 Doble tap para {isAttended ? 'revertir' : 'marcar como atendido'}
           </span>
         </div>
       )}
@@ -146,17 +175,27 @@ export default function AppointmentCard({ appointment, onNoShow, onAttended }: P
       {/* Botón de acción */}
       <button
         className={`w-full py-3 px-4 rounded-lg font-medium text-sm transition-all ${
-          appointment.noShow || isAttended
+          appointment.noShow
             ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
             : 'bg-secondary text-white hover:bg-opacity-90 active:scale-95 shadow-md hover:shadow-lg'
         }`}
-        disabled={appointment.noShow || isAttended}
-        onClick={() => onNoShow(appointment.id)}
+        disabled={appointment.noShow}
+        onClick={handleNoShowClick}
       >
-        {appointment.noShow ? 'Ya marcado como ausente' : 
-         isAttended ? 'Cliente ya atendido' : 
-         'No se ha presentado a la cita'}
+        {appointment.noShow ? 'Ya marcado como ausente' : 'No se ha presentado a la cita'}
       </button>
+
+      {/* Modal de confirmación */}
+      <ConfirmationModal
+        isOpen={showNoShowModal}
+        title="Confirmar ausencia"
+        message={`¿Estás seguro de que ${appointment.clienteNombre} ${appointment.clienteApellidos} no se ha presentado a la cita?`}
+        confirmText="Sí, no se presentó"
+        cancelText="Cancelar"
+        confirmButtonType="danger"
+        onConfirm={handleConfirmNoShow}
+        onCancel={handleCancelNoShow}
+      />
     </div>
   );
 }

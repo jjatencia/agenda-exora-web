@@ -60,13 +60,7 @@ export default function CardCarousel({ appointments, onRefresh, onAttended, onNo
     if (onAttended) {
       onAttended(id);
     }
-    
-    // Mostrar mensaje de éxito
-    const toast = document.createElement('div');
-    toast.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
-    toast.textContent = 'Cliente atendido ✅';
-    document.body.appendChild(toast);
-    setTimeout(() => document.body.removeChild(toast), 2000);
+    // El toast ahora se maneja en AppointmentCard
   }
 
   const handleDragStart = () => {
