@@ -125,8 +125,8 @@ export default function CardCarousel({ appointments, onRefresh, onAttended, onNo
         </motion.div>
       </div>
 
-      {/* Solo indicadores - MUCHO MÁS ABAJO */}
-      <div className="mt-8 space-y-3">
+      {/* Solo indicadores - MUCHÍSIMO MÁS ABAJO */}
+      <div className="mt-16 space-y-4">
         {/* Indicadores de posición */}
         <div className="flex justify-center items-center space-x-2">
           {appointments.map((_, i) => (

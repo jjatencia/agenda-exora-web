@@ -112,7 +112,7 @@ export default function AppointmentCard({ appointment, onNoShow, onAttended }: P
       style={{ 
         width: '100%', 
         maxWidth: '400px', 
-        minHeight: '380px',
+        minHeight: '420px',
         perspective: '1000px' 
       }}
     >
@@ -125,7 +125,7 @@ export default function AppointmentCard({ appointment, onNoShow, onAttended }: P
       >
         {/* Cara frontal */}
         <div 
-          className={`absolute inset-0 backface-hidden bg-white rounded-xl shadow-lg border border-gray-100 p-5 overflow-hidden transition-all duration-300 ${
+          className={`absolute inset-0 backface-hidden bg-white rounded-xl shadow-lg border border-gray-100 p-6 overflow-hidden transition-all duration-300 ${
             isAttended ? 'opacity-50 bg-gray-50' : ''
           } ${appointment.noShow ? 'bg-secondary bg-opacity-10 border-secondary border-opacity-30' : ''}`}
           style={{ backfaceVisibility: 'hidden' }}
@@ -251,7 +251,7 @@ export default function AppointmentCard({ appointment, onNoShow, onAttended }: P
 
       {/* Cara trasera - Comentarios */}
       <div 
-        className="absolute inset-0 bg-gradient-to-br from-complement3 to-white rounded-xl shadow-lg border border-gray-100 p-5 overflow-y-auto"
+        className="absolute inset-0 bg-gradient-to-br from-complement3 to-white rounded-xl shadow-lg border border-gray-100 p-6 overflow-y-auto"
         style={{ 
           backfaceVisibility: 'hidden',
           transform: 'rotateY(180deg)'
