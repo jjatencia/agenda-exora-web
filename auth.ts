@@ -57,7 +57,7 @@ const config: NextAuthConfig = {
   trustHost: true,
   secret: process.env.NEXTAUTH_SECRET,
 
-  debug: process.env.NODE_ENV === "development", // Solo debug en desarrollo
+  debug: true, // Temporal: habilitar debug en producción para diagnosticar
 };
 
 export const { handlers, auth, signIn, signOut } = NextAuth(config);
