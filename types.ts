@@ -11,4 +11,5 @@ export type Appointment = {
   horaInicio: string;
   descuentos?: string[];
   noShow?: boolean;
+  attended?: boolean;
 };

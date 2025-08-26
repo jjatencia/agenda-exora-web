@@ -132,9 +132,15 @@ export default function AgendaClient({ userEmail }: Props) {
                 <span className="font-semibold text-primary">{appointments.length}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Pendientes:</span>
+                <span className="text-gray-600">Atendidos:</span>
                 <span className="font-semibold text-green-600">
-                  {appointments.filter(a => !a.noShow).length}
+                  {appointments.filter(a => a.attended && !a.noShow).length}
+                </span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Pendientes:</span>
+                <span className="font-semibold text-blue-600">
+                  {appointments.filter(a => !a.noShow && !a.attended).length}
                 </span>
               </div>
               <div className="flex justify-between text-sm">

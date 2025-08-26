@@ -14,7 +14,9 @@ interface Props {
 export default function CardCarousel({ appointments, onRefresh }: Props) {
   const [index, setIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-  const cardWidth = 320; // w-80 (320px) + gap
+  
+  // Responsive card width for mobile
+  const cardWidth = typeof window !== 'undefined' ? window.innerWidth - 32 : 320; // Full width minus padding
   const gap = 16; // gap-4 (16px)
   const totalCardWidth = cardWidth + gap;
   const maxIndex = Math.max(appointments.length - 1, 0);
@@ -41,6 +43,18 @@ export default function CardCarousel({ appointments, onRefresh }: Props) {
       document.body.appendChild(toast);
       setTimeout(() => document.body.removeChild(toast), 3000);
     }
+  }
+
+  function handleAttended(id: string) {
+    // Simular marcar como atendido (en una app real esto sería una llamada a API)
+    onRefresh(); // Esto actualizará el estado local
+    
+    // Mostrar mensaje de éxito
+    const toast = document.createElement('div');
+    toast.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+    toast.textContent = 'Cliente atendido ✅';
+    document.body.appendChild(toast);
+    setTimeout(() => document.body.removeChild(toast), 2000);
   }
 
   const handleDragStart = () => {
@@ -81,7 +95,7 @@ export default function CardCarousel({ appointments, onRefresh }: Props) {
       </div>
 
       {/* Contenedor del carrusel */}
-      <div className="overflow-hidden px-4">
+      <div className="overflow-hidden px-4 max-w-full">
         <motion.div
           drag="x"
           dragConstraints={{
@@ -108,6 +122,7 @@ export default function CardCarousel({ appointments, onRefresh }: Props) {
               key={appointment.id}
               appointment={appointment}
               onNoShow={handleNoShow}
+              onAttended={handleAttended}
             />
           ))}
         </motion.div>

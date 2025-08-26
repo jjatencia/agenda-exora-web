@@ -1,13 +1,17 @@
 'use client';
 
+import { useState } from 'react';
 import { Appointment } from '@/types';
 
 interface Props {
   appointment: Appointment;
   onNoShow: (id: string) => void;
+  onAttended?: (id: string) => void;
 }
 
-export default function AppointmentCard({ appointment, onNoShow }: Props) {
+export default function AppointmentCard({ appointment, onNoShow, onAttended }: Props) {
+  const [isAttended, setIsAttended] = useState(appointment.attended || false);
+  const [lastTap, setLastTap] = useState(0);
   // Formatear fecha en DD/MM/AAAA
   const formatDate = (dateISO: string) => {
     const date = new Date(dateISO);
@@ -18,20 +22,54 @@ export default function AppointmentCard({ appointment, onNoShow }: Props) {
     });
   };
 
+  // Manejar doble tap para marcar como atendido
+  const handleDoubleTap = () => {
+    const now = Date.now();
+    const DOUBLE_TAP_DELAY = 300;
+    
+    if (now - lastTap < DOUBLE_TAP_DELAY) {
+      // Es un doble tap
+      if (!isAttended && !appointment.noShow && onAttended) {
+        setIsAttended(true);
+        onAttended(appointment.id);
+      }
+    }
+    setLastTap(now);
+  };
+
+  // Formatear teléfono para llamada
+  const handlePhoneCall = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    window.location.href = `tel:${appointment.telefono}`;
+  };
+
   return (
-    <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 w-80 flex-shrink-0 relative overflow-hidden">
+    <div 
+      className={`bg-white rounded-xl shadow-lg border border-gray-100 p-6 flex-shrink-0 relative overflow-hidden transition-all duration-300 ${
+        isAttended ? 'opacity-50 bg-gray-50' : ''
+      } ${appointment.noShow ? 'bg-red-50 border-red-200' : ''}`}
+      style={{ width: 'calc(100vw - 32px)', maxWidth: '380px' }}
+      onClick={handleDoubleTap}
+    >
       {/* Accent line en el top */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary to-secondary"></div>
+      <div className={`absolute top-0 left-0 right-0 h-1 ${
+        isAttended ? 'bg-green-500' : 
+        appointment.noShow ? 'bg-red-500' : 
+        'bg-gradient-to-r from-primary to-secondary'
+      }`}></div>
       
       {/* Header con nombre del cliente */}
       <div className="mb-4">
         <h2 className="font-heading text-xl font-semibold text-primary mb-1">
           {appointment.clienteNombre} {appointment.clienteApellidos}
         </h2>
-        <p className="text-sm text-gray-600 flex items-center">
+        <button 
+          onClick={handlePhoneCall}
+          className="text-sm text-blue-600 hover:text-blue-800 flex items-center transition-colors cursor-pointer"
+        >
           <span className="inline-block w-4 h-4 mr-2">📞</span>
           {appointment.telefono}
-        </p>
+        </button>
       </div>
 
       {/* Servicio principal */}
@@ -87,17 +125,37 @@ export default function AppointmentCard({ appointment, onNoShow }: Props) {
         </div>
       )}
 
+      {/* Estado Atendido */}
+      {isAttended && !appointment.noShow && (
+        <div className="mb-4 p-2 bg-green-50 border border-green-200 rounded-lg">
+          <span className="text-green-600 font-semibold text-sm flex items-center">
+            ✅ Cliente atendido
+          </span>
+        </div>
+      )}
+
+      {/* Instrucciones y botón de acción */}
+      {!isAttended && !appointment.noShow && (
+        <div className="mb-3 p-2 bg-blue-50 border border-blue-200 rounded-lg">
+          <span className="text-blue-600 text-xs font-medium">
+            💡 Doble tap para marcar como atendido
+          </span>
+        </div>
+      )}
+
       {/* Botón de acción */}
       <button
         className={`w-full py-3 px-4 rounded-lg font-medium text-sm transition-all ${
-          appointment.noShow
+          appointment.noShow || isAttended
             ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
             : 'bg-secondary text-white hover:bg-opacity-90 active:scale-95 shadow-md hover:shadow-lg'
         }`}
-        disabled={appointment.noShow}
+        disabled={appointment.noShow || isAttended}
         onClick={() => onNoShow(appointment.id)}
       >
-        {appointment.noShow ? 'Ya marcado como ausente' : 'No se ha presentado a la cita'}
+        {appointment.noShow ? 'Ya marcado como ausente' : 
+         isAttended ? 'Cliente ya atendido' : 
+         'No se ha presentado a la cita'}
       </button>
     </div>
   );
