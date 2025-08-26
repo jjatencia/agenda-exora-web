@@ -40,7 +40,8 @@ const config: NextAuthConfig = {
   callbacks: {
     async redirect({ url, baseUrl }) {
       // Asegurar redirects seguros
-
+      console.log("[AUTH REDIRECT]", { url, baseUrl });
+      
       if (url.startsWith("/")) return `${baseUrl}${url}`;
       if (new URL(url).origin === baseUrl) return url;
       return baseUrl;
