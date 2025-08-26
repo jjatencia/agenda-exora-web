@@ -90,50 +90,6 @@ export default function CardCarousel({ appointments, onRefresh, onAttended, onNo
 
   return (
     <div className="w-full">
-      {/* Indicadores de posición */}
-      <div className="flex justify-center items-center mb-4 space-x-2">
-        {appointments.map((_, i) => (
-          <button
-            key={i}
-            className={`w-2 h-2 rounded-full transition-all ${
-              i === index ? 'bg-primary w-8' : 'bg-gray-300'
-            }`}
-            onClick={() => setIndex(i)}
-          />
-        ))}
-      </div>
-
-      {/* Contador de citas */}
-      <div className="text-center mb-4 text-sm text-gray-500">
-        Cita {index + 1} de {appointments.length}
-      </div>
-
-      {/* Botones de navegación opcionales */}
-      <div className="flex justify-center items-center mb-6 space-x-4">
-        <button
-          className={`p-2 rounded-full transition-all ${
-            index === 0
-              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-              : 'bg-primary text-white hover:bg-opacity-90 shadow-md'
-          }`}
-          onClick={() => setIndex(Math.max(index - 1, 0))}
-          disabled={index === 0}
-        >
-          ←
-        </button>
-        <button
-          className={`p-2 rounded-full transition-all ${
-            index === maxIndex
-              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-              : 'bg-primary text-white hover:bg-opacity-90 shadow-md'
-          }`}
-          onClick={() => setIndex(Math.min(index + 1, maxIndex))}
-          disabled={index === maxIndex}
-        >
-          →
-        </button>
-      </div>
-
       {/* Contenedor del carrusel */}
       <div className="overflow-hidden max-w-full">
         <motion.div
@@ -167,6 +123,53 @@ export default function CardCarousel({ appointments, onRefresh, onAttended, onNo
             />
           ))}
         </motion.div>
+      </div>
+
+      {/* Navegación al final */}
+      <div className="mt-6 space-y-3">
+        {/* Indicadores de posición */}
+        <div className="flex justify-center items-center space-x-2">
+          {appointments.map((_, i) => (
+            <button
+              key={i}
+              className={`w-2 h-2 rounded-full transition-all ${
+                i === index ? 'bg-primary w-8' : 'bg-gray-300'
+              }`}
+              onClick={() => setIndex(i)}
+            />
+          ))}
+        </div>
+
+        {/* Contador de citas */}
+        <div className="text-center text-sm text-gray-500">
+          Cita {index + 1} de {appointments.length}
+        </div>
+
+        {/* Botones de navegación opcionales */}
+        <div className="flex justify-center items-center space-x-4">
+          <button
+            className={`p-2 rounded-full transition-all ${
+              index === 0
+                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                : 'bg-primary text-white hover:bg-opacity-90 shadow-md'
+            }`}
+            onClick={() => setIndex(Math.max(index - 1, 0))}
+            disabled={index === 0}
+          >
+            ←
+          </button>
+          <button
+            className={`p-2 rounded-full transition-all ${
+              index === maxIndex
+                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                : 'bg-primary text-white hover:bg-opacity-90 shadow-md'
+            }`}
+            onClick={() => setIndex(Math.min(index + 1, maxIndex))}
+            disabled={index === maxIndex}
+          >
+            →
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -112,7 +112,7 @@ export default function AppointmentCard({ appointment, onNoShow, onAttended }: P
       style={{ 
         width: '100%', 
         maxWidth: '400px', 
-        minHeight: '420px',
+        minHeight: '360px',
         perspective: '1000px' 
       }}
     >
@@ -138,22 +138,23 @@ export default function AppointmentCard({ appointment, onNoShow, onAttended }: P
         'bg-gradient-to-r from-primary to-secondary'
       }`}></div>
 
-      {/* Indicador de comentarios */}
-      {(hasComments || forceShowComments) && (
-        <button
-          onClick={handleCommentsClick}
-          className="absolute top-4 right-4 w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center shadow-lg hover:bg-complement4 transition-all duration-300 transform hover:scale-110 z-10"
-          title="Ver comentarios"
-        >
-          <span className="text-lg">💬</span>
-        </button>
-      )}
-      
       {/* Header con nombre del cliente */}
       <div className="mb-4">
-        <h2 className="font-heading text-xl font-semibold text-primary mb-1">
-          {appointment.clienteNombre} {appointment.clienteApellidos}
-        </h2>
+        <div className="flex items-center justify-between">
+          <h2 className="font-heading text-xl font-semibold text-primary mb-1">
+            {appointment.clienteNombre} {appointment.clienteApellidos}
+          </h2>
+          {/* Indicador de comentarios */}
+          {(hasComments || forceShowComments) && (
+            <button
+              onClick={handleCommentsClick}
+              className="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center shadow-lg hover:bg-complement4 transition-all duration-300 transform hover:scale-110 z-10 flex-shrink-0"
+              title="Ver comentarios"
+            >
+              <span className="text-sm">💬</span>
+            </button>
+          )}
+        </div>
         <button 
           onClick={handlePhoneCall}
           className="text-sm text-primary hover:text-complement4 flex items-center transition-colors cursor-pointer"
@@ -174,7 +175,7 @@ export default function AppointmentCard({ appointment, onNoShow, onAttended }: P
       </div>
 
       {/* Detalles de la cita */}
-      <div className="space-y-2 mb-4">
+      <div className="space-y-1 mb-3">
         <div className="flex items-center text-sm">
           <span className="w-16 text-gray-500 font-medium">Lugar:</span>
           <span className="text-gray-800">{appointment.sucursal}</span>
@@ -195,7 +196,7 @@ export default function AppointmentCard({ appointment, onNoShow, onAttended }: P
 
       {/* Descuentos */}
       {appointment.descuentos?.length && (
-        <div className="mb-4">
+        <div className="mb-3">
           <p className="text-xs text-gray-500 mb-2 font-medium">PROMOCIONES:</p>
           <div className="flex flex-wrap gap-1">
             {appointment.descuentos.map((d) => (
@@ -209,7 +210,7 @@ export default function AppointmentCard({ appointment, onNoShow, onAttended }: P
 
       {/* Estado No Show */}
       {appointment.noShow && (
-        <div className="mb-4 p-2 bg-secondary bg-opacity-10 border border-secondary border-opacity-30 rounded-lg">
+        <div className="mb-3 p-2 bg-secondary bg-opacity-10 border border-secondary border-opacity-30 rounded-lg">
           <span className="text-secondary font-semibold text-sm flex items-center">
             ⚠️ Cliente no se presentó
           </span>
@@ -218,7 +219,7 @@ export default function AppointmentCard({ appointment, onNoShow, onAttended }: P
 
       {/* Estado Atendido */}
       {isAttended && !appointment.noShow && (
-        <div className="mb-4 p-2 bg-complement2 bg-opacity-20 border border-complement2 border-opacity-50 rounded-lg">
+        <div className="mb-3 p-2 bg-complement2 bg-opacity-20 border border-complement2 border-opacity-50 rounded-lg">
           <span className="text-complement4 font-semibold text-sm flex items-center">
             ✅ Cliente atendido
           </span>
@@ -227,7 +228,7 @@ export default function AppointmentCard({ appointment, onNoShow, onAttended }: P
 
       {/* Instrucciones y botón de acción */}
       {!appointment.noShow && (
-        <div className="mb-3 p-2 bg-complement3 bg-opacity-50 border border-primary border-opacity-30 rounded-lg">
+        <div className="mb-2 p-2 bg-complement3 bg-opacity-50 border border-primary border-opacity-30 rounded-lg">
           <span className="text-primary text-xs font-medium">
             💡 Doble tap para {isAttended ? 'revertir' : 'marcar como atendido'}
           </span>
