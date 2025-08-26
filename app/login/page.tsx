@@ -42,7 +42,7 @@ export default function LoginPage() {
         <h1 className="text-2xl font-semibold">Acceder</h1>
         
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+          <div className="bg-secondary bg-opacity-10 border border-secondary border-opacity-30 text-secondary px-4 py-3 rounded">
             {error}
           </div>
         )}

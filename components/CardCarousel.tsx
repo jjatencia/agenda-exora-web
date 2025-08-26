@@ -41,14 +41,14 @@ export default function CardCarousel({ appointments, onRefresh, onAttended, onNo
       
       // Mostrar mensaje de éxito
       const toast = document.createElement('div');
-      toast.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+      toast.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-complement2 text-complement4 px-4 py-2 rounded-lg shadow-lg z-50';
       toast.textContent = 'Marcado como no presentado';
       document.body.appendChild(toast);
       setTimeout(() => document.body.removeChild(toast), 3000);
     } catch (e) {
       // Mostrar mensaje de error
       const toast = document.createElement('div');
-      toast.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+      toast.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-secondary text-white px-4 py-2 rounded-lg shadow-lg z-50';
       toast.textContent = 'Error al marcar la cita';
       document.body.appendChild(toast);
       setTimeout(() => document.body.removeChild(toast), 3000);

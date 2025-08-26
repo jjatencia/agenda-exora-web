@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 interface Props {
   isOpen: boolean;
@@ -46,11 +47,11 @@ export default function ConfirmationModal({
   if (!isOpen) return null;
 
   const confirmButtonClass = confirmButtonType === 'danger' 
-    ? 'bg-red-500 hover:bg-red-600 focus:ring-red-500' 
+    ? 'bg-secondary hover:bg-secondary hover:bg-opacity-90 focus:ring-secondary' 
     : 'bg-primary hover:bg-opacity-90 focus:ring-primary';
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+  const modal = (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4">
       <div 
         className="bg-white rounded-xl shadow-2xl max-w-sm w-full mx-4 transform transition-all"
         onClick={(e) => e.stopPropagation()}
@@ -83,4 +84,7 @@ export default function ConfirmationModal({
       </div>
     </div>
   );
+
+  // Renderizar en portal para evitar problemas de z-index
+  return typeof window !== 'undefined' ? createPortal(modal, document.body) : null;
 }

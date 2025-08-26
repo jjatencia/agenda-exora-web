@@ -38,7 +38,7 @@ export default function AppointmentCard({ appointment, onNoShow, onAttended }: P
         
         // Mostrar toast apropiado
         const toast = document.createElement('div');
-        toast.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+        toast.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-primary text-white px-4 py-2 rounded-lg shadow-lg z-50';
         toast.textContent = newAttendedState ? 'Cliente atendido ✅' : 'Estado revertido ↩️';
         document.body.appendChild(toast);
         setTimeout(() => document.body.removeChild(toast), 2000);
@@ -76,14 +76,14 @@ export default function AppointmentCard({ appointment, onNoShow, onAttended }: P
     <div 
       className={`bg-white rounded-xl shadow-lg border border-gray-100 p-6 flex-shrink-0 relative overflow-hidden transition-all duration-300 ${
         isAttended ? 'opacity-50 bg-gray-50' : ''
-      } ${appointment.noShow ? 'bg-red-50 border-red-200' : ''}`}
+              } ${appointment.noShow ? 'bg-secondary bg-opacity-10 border-secondary border-opacity-30' : ''}`}
       style={{ width: '100%', maxWidth: '400px' }}
       onClick={handleDoubleTap}
     >
       {/* Accent line en el top */}
       <div className={`absolute top-0 left-0 right-0 h-1 ${
-        isAttended ? 'bg-green-500' : 
-        appointment.noShow ? 'bg-red-500' : 
+        isAttended ? 'bg-complement2' : 
+        appointment.noShow ? 'bg-secondary' : 
         'bg-gradient-to-r from-primary to-secondary'
       }`}></div>
       
@@ -94,7 +94,7 @@ export default function AppointmentCard({ appointment, onNoShow, onAttended }: P
         </h2>
         <button 
           onClick={handlePhoneCall}
-          className="text-sm text-blue-600 hover:text-blue-800 flex items-center transition-colors cursor-pointer"
+          className="text-sm text-primary hover:text-complement4 flex items-center transition-colors cursor-pointer"
         >
           <span className="inline-block w-4 h-4 mr-2">📞</span>
           {appointment.telefono}
@@ -147,8 +147,8 @@ export default function AppointmentCard({ appointment, onNoShow, onAttended }: P
 
       {/* Estado No Show */}
       {appointment.noShow && (
-        <div className="mb-4 p-2 bg-red-50 border border-red-200 rounded-lg">
-          <span className="text-red-600 font-semibold text-sm flex items-center">
+        <div className="mb-4 p-2 bg-secondary bg-opacity-10 border border-secondary border-opacity-30 rounded-lg">
+          <span className="text-secondary font-semibold text-sm flex items-center">
             ⚠️ Cliente no se presentó
           </span>
         </div>
@@ -156,8 +156,8 @@ export default function AppointmentCard({ appointment, onNoShow, onAttended }: P
 
       {/* Estado Atendido */}
       {isAttended && !appointment.noShow && (
-        <div className="mb-4 p-2 bg-green-50 border border-green-200 rounded-lg">
-          <span className="text-green-600 font-semibold text-sm flex items-center">
+        <div className="mb-4 p-2 bg-complement2 bg-opacity-20 border border-complement2 border-opacity-50 rounded-lg">
+          <span className="text-complement4 font-semibold text-sm flex items-center">
             ✅ Cliente atendido
           </span>
         </div>
@@ -165,8 +165,8 @@ export default function AppointmentCard({ appointment, onNoShow, onAttended }: P
 
       {/* Instrucciones y botón de acción */}
       {!appointment.noShow && (
-        <div className="mb-3 p-2 bg-blue-50 border border-blue-200 rounded-lg">
-          <span className="text-blue-600 text-xs font-medium">
+        <div className="mb-3 p-2 bg-complement3 bg-opacity-50 border border-primary border-opacity-30 rounded-lg">
+          <span className="text-primary text-xs font-medium">
             💡 Doble tap para {isAttended ? 'revertir' : 'marcar como atendido'}
           </span>
         </div>

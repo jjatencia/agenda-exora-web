@@ -90,9 +90,9 @@ export default function AgendaClient({ userEmail }: Props) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-complement3 to-white p-4">
         <div className="max-w-md mx-auto">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
-            <h2 className="text-red-600 font-semibold mb-2">Error al cargar las citas</h2>
-            <p className="text-red-500 text-sm mb-4">
+          <div className="bg-secondary bg-opacity-10 border border-secondary border-opacity-30 rounded-lg p-4 text-center">
+            <h2 className="text-secondary font-semibold mb-2">Error al cargar las citas</h2>
+            <p className="text-secondary text-opacity-80 text-sm mb-4">
               No se pudieron cargar las citas para esta fecha.
             </p>
             <button
@@ -170,19 +170,19 @@ export default function AgendaClient({ userEmail }: Props) {
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Atendidos:</span>
-                <span className="font-semibold text-green-600">
+                <span className="font-semibold text-complement4">
                   {appointments.filter(a => a.attended && !a.noShow).length}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Pendientes:</span>
-                <span className="font-semibold text-blue-600">
+                <span className="font-semibold text-primary">
                   {appointments.filter(a => !a.noShow && !a.attended).length}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">No presentados:</span>
-                <span className="font-semibold text-red-600">
+                <span className="font-semibold text-secondary">
                   {appointments.filter(a => a.noShow).length}
                 </span>
               </div>
