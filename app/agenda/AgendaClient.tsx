@@ -76,6 +76,16 @@ export default function AgendaClient({ userEmail }: Props) {
     );
   };
 
+  const handleNoShow = (appointmentId: string) => {
+    setLocalAppointments(prev => 
+      prev.map(apt => 
+        apt.id === appointmentId 
+          ? { ...apt, noShow: true }
+          : apt
+      )
+    );
+  };
+
   if (isError) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-complement3 to-white p-4">
@@ -187,6 +197,7 @@ export default function AgendaClient({ userEmail }: Props) {
                 appointments={appointments}
                 onRefresh={handleRefresh}
                 onAttended={handleAttended}
+                onNoShow={handleNoShow}
               />
             </div>
           </div>

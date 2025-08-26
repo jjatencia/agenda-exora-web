@@ -10,15 +10,16 @@ interface Props {
   appointments: Appointment[];
   onRefresh: () => void;
   onAttended?: (appointmentId: string) => void;
+  onNoShow?: (appointmentId: string) => void;
 }
 
-export default function CardCarousel({ appointments, onRefresh, onAttended }: Props) {
+export default function CardCarousel({ appointments, onRefresh, onAttended, onNoShow }: Props) {
   const [index, setIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   
   // Responsive card width for mobile
   const cardWidth = typeof window !== 'undefined' ? window.innerWidth - 32 : 320; // Full width minus padding
-  const gap = 16; // gap-4 (16px)
+  const gap = 32; // gap-8 (32px) - 2rem
   const totalCardWidth = cardWidth + gap;
   const maxIndex = Math.max(appointments.length - 1, 0);
 
@@ -29,7 +30,12 @@ export default function CardCarousel({ appointments, onRefresh, onAttended }: Pr
   async function handleNoShow(id: string) {
     try {
       await markNoShow(id);
-      onRefresh();
+      
+      // Usar la función externa para actualizar el estado local
+      if (onNoShow) {
+        onNoShow(id);
+      }
+      
       // Mostrar mensaje de éxito
       const toast = document.createElement('div');
       toast.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
@@ -69,17 +75,20 @@ export default function CardCarousel({ appointments, onRefresh, onAttended }: Pr
     const offset = info.offset.x;
     const velocity = info.velocity.x;
     
-    // Threshold para cambiar de tarjeta
-    const threshold = 80;
-    const velocityThreshold = 500;
+    // Thresholds más precisos para swipe
+    const threshold = cardWidth * 0.2; // 20% del ancho de la tarjeta
+    const velocityThreshold = 300;
     
     if (offset < -threshold || velocity < -velocityThreshold) {
       // Swipe hacia la izquierda - siguiente tarjeta
-      setIndex(Math.min(index + 1, maxIndex));
+      const newIndex = Math.min(index + 1, maxIndex);
+      setIndex(newIndex);
     } else if (offset > threshold || velocity > velocityThreshold) {
       // Swipe hacia la derecha - tarjeta anterior
-      setIndex(Math.max(index - 1, 0));
+      const newIndex = Math.max(index - 1, 0);
+      setIndex(newIndex);
     }
+    // Si no se cumple el threshold, la tarjeta vuelve a su posición original automáticamente
   };
 
   return (
@@ -105,19 +114,20 @@ export default function CardCarousel({ appointments, onRefresh, onAttended }: Pr
             left: -maxIndex * totalCardWidth,
             right: 0,
           }}
-          dragElastic={0.1}
+          dragElastic={0.2}
           animate={{ x: -index * totalCardWidth }}
           transition={{
             type: 'spring',
-            stiffness: 300,
-            damping: 30,
+            stiffness: 400,
+            damping: 40,
+            mass: 0.8,
           }}
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
           style={{
             cursor: isDragging ? 'grabbing' : 'grab',
             display: 'flex',
-            gap: '1rem',
+            gap: '2rem',
             paddingLeft: '16px',
             paddingRight: '16px',
           }}
