@@ -41,7 +41,7 @@ export default function LoginPage() {
       }
     } catch (error) {
       console.error("[LOGIN CATCH ERROR]", error);
-      setError(`Error al iniciar sesión: ${error.message || error}`);
+      setError(`Error al iniciar sesión: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setIsLoading(false);
     }
