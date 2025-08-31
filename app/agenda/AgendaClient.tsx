@@ -108,124 +108,68 @@ export default function AgendaClient({ userEmail }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-complement3 to-white">
-      {/* Header con branding */}
-      <header className="bg-white shadow-sm border-b border-gray-100">
-        <div className="max-w-md mx-auto p-3">
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <h1 className="font-heading text-lg font-semibold text-primary">
-                Agenda Barbería
-              </h1>
-              {userEmail && (
-                <p className="text-sm text-gray-600">
-                  {userEmail}
-                </p>
-              )}
-            </div>
-            <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center">
-              <span className="text-white text-xl">✂️</span>
-            </div>
-          </div>
-          
-          {/* Selector de fecha */}
-          <div className="bg-gray-50 rounded-lg p-3">
-            <DateHeader 
-              date={selectedDate} 
-              onChange={handleDateChange}
-            />
-            <button
-              onClick={() => setShowDatePicker(true)}
-              className="w-full mt-2 text-sm text-primary hover:text-primary/80 transition-colors"
-            >
-              📅 Seleccionar otra fecha
-            </button>
-          </div>
+    <div className="min-h-screen flex flex-col p-4 text-black overflow-hidden" style={{ paddingBottom: 'calc(96px + env(safe-area-inset-bottom))' }}>
+      {/* Cabecera simplificada sin logo, alineada a la derecha */}
+      <header className="flex justify-end items-center mb-6">
+        <div 
+          onClick={() => setShowDatePicker(true)}
+          className="cursor-pointer"
+        >
+          <DateHeader 
+            date={selectedDate} 
+            onChange={handleDateChange}
+          />
         </div>
       </header>
 
-      {/* Contenido principal */}
-      <main className="max-w-md mx-auto p-4">
+      {/* Contenedor principal de las tarjetas */}
+      <main className="flex-grow flex flex-col items-center justify-center">
         {isLoading ? (
           // Skeleton loading
-          <div className="space-y-4">
-            <div className="bg-white rounded-xl p-6 animate-pulse">
-              <div className="h-6 bg-gray-200 rounded mb-4"></div>
-              <div className="h-4 bg-gray-200 rounded mb-2"></div>
-              <div className="h-4 bg-gray-200 rounded mb-4"></div>
-              <div className="h-20 bg-gray-200 rounded mb-4"></div>
-              <div className="h-10 bg-gray-200 rounded"></div>
+          <div className="card-stack">
+            <div className="card animate-pulse">
+              <div className="card-content">
+                <div className="text-center mb-3">
+                  <div className="h-8 bg-gray-200 rounded mb-2"></div>
+                  <div className="h-12 bg-gray-200 rounded"></div>
+                </div>
+                <div className="space-y-3 mt-4">
+                  <div className="h-4 bg-gray-200 rounded"></div>
+                  <div className="h-4 bg-gray-200 rounded"></div>
+                  <div className="h-4 bg-gray-200 rounded"></div>
+                  <div className="h-4 bg-gray-200 rounded"></div>
+                  <div className="h-4 bg-gray-200 rounded"></div>
+                </div>
+              </div>
             </div>
           </div>
         ) : appointments && appointments.length > 0 ? (
-          <div className="space-y-6">
-            {/* Carrusel de tarjetas */}
-            <div>
-              <CardCarousel
-                appointments={appointments}
-                onRefresh={handleRefresh}
-                onAttended={handleAttended}
-                onNoShow={handleNoShow}
-              />
-            </div>
-
-            {/* Resumen del día */}
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <h2 className="font-heading text-lg font-semibold text-gray-800 mb-2">
-                Resumen del día
-              </h2>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Total de citas:</span>
-                <span className="font-semibold text-primary">{appointments.length}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Atendidos:</span>
-                <span className="font-semibold text-complement4">
-                  {appointments.filter(a => a.attended && !a.noShow).length}
-                </span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Pendientes:</span>
-                <span className="font-semibold text-primary">
-                  {appointments.filter(a => !a.noShow && !a.attended).length}
-                </span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">No presentados:</span>
-                <span className="font-semibold text-secondary">
-                  {appointments.filter(a => a.noShow).length}
-                </span>
-              </div>
-            </div>
-          </div>
+          <CardCarousel
+            appointments={appointments}
+            onRefresh={handleRefresh}
+            onAttended={handleAttended}
+            onNoShow={handleNoShow}
+          />
         ) : (
           <NoData onPick={() => setShowDatePicker(true)} />
         )}
       </main>
 
-      {/* Modal del selector de fecha */}
+      {/* Modal del Calendario */}
       {showDatePicker && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-sm w-full">
-            <div className="p-4 border-b border-gray-100">
-              <h3 className="font-heading text-lg font-semibold text-gray-800">
-                Seleccionar fecha
-              </h3>
-            </div>
-            <div className="p-4">
-              <DayPicker
-                selectedDate={selectedDate}
-                onDateSelect={handleDateChange}
-              />
-            </div>
-            <div className="p-4 border-t border-gray-100">
-              <button
-                onClick={() => setShowDatePicker(false)}
-                className="w-full bg-gray-100 text-gray-700 py-2 rounded-lg hover:bg-gray-200 transition-colors"
-              >
-                Cancelar
-              </button>
-            </div>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-40">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
+            <DayPicker
+              selectedDate={selectedDate}
+              onDateSelect={handleDateChange}
+            />
+            <button 
+              onClick={() => setShowDatePicker(false)}
+              className="w-full mt-4 text-white py-2 rounded-lg font-semibold"
+              style={{ backgroundColor: 'var(--exora-primary)' }}
+            >
+              Aceptar
+            </button>
           </div>
         </div>
       )}
