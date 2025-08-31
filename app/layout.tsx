@@ -1,5 +1,5 @@
 import './globals.css';
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter, Work_Sans } from 'next/font/google';
 import { auth } from '@/auth';
 import SessionProvider from '@/components/SessionProvider';
@@ -11,6 +11,9 @@ export const metadata: Metadata = {
   title: 'Agenda Exora',
   description: 'PWA Agenda',
   manifest: '/manifest.webmanifest',
+};
+
+export const viewport: Viewport = {
   themeColor: '#555BF6',
 };
 

@@ -1,4 +1,5 @@
 // Página privada principal (agenda). Server Component.
+export const dynamic = 'force-dynamic';
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import AgendaClient from "./AgendaClient";
