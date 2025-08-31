@@ -39,6 +39,7 @@ body {
   justify-content: center;
   margin-top: -20px;
   perspective: 1000px;
+  touch-action: pan-y; /* evita scroll horizontal mientras se arrastra */
 }
 
 /* Individual card */
@@ -58,6 +59,8 @@ body {
   justify-content: center;
   border: 1px solid #e5e7eb;
   transform-style: preserve-3d;
+  backface-visibility: hidden;
+  will-change: transform, opacity; /* hint GPU */
 }
 
 .card.dragging {
@@ -69,6 +72,7 @@ body {
   padding: 24px;
   color: var(--exora-dark);
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .info-row {

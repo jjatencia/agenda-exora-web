@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import useAppointments from '@/hooks/useAppointments';
 import { Appointment } from '@/types';
 
@@ -73,7 +73,8 @@ export default function AgendaClient({ userEmail }: Props) {
   // Carrusel tipo "stack"
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-  const [dragDX, setDragDX] = useState(0);
+  const dragDXRef = useRef(0);
+  const rafRef = useRef<number | null>(null);
 
   // Formato API yyyy-mm-dd en local (evita desfase por zona horaria)
   const formatDateForAPI = (date: Date) => {
@@ -146,7 +147,15 @@ export default function AgendaClient({ userEmail }: Props) {
     if (!isDragging) return;
     const startX = (e.currentTarget as any)._startX as number | undefined;
     if (startX === undefined) return;
-    setDragDX(e.clientX - startX);
+    const dx = e.clientX - startX;
+    dragDXRef.current = dx;
+    if (rafRef.current == null) {
+      rafRef.current = requestAnimationFrame(() => {
+        // fuerza un render mínimo (cambia estado dummy con micro-cola)
+        setCurrentCardIndex((i) => i);
+        rafRef.current = null;
+      });
+    }
   };
 
   const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -154,10 +163,11 @@ export default function AgendaClient({ userEmail }: Props) {
     (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
     setIsDragging(false);
     const threshold = (typeof window !== 'undefined' ? window.innerWidth : 360) / 5;
-    if (Math.abs(dragDX) > threshold) {
-      if (dragDX > 0) prev(); else next();
+    const dx = dragDXRef.current;
+    if (Math.abs(dx) > threshold) {
+      if (dx > 0) prev(); else next();
     }
-    setDragDX(0);
+    dragDXRef.current = 0;
   };
 
   // Transform base por offset
@@ -170,14 +180,15 @@ export default function AgendaClient({ userEmail }: Props) {
     };
     if (offset === 0) {
       if (isDragging) {
-        const rotate = dragDX * 0.05;
-        return { ...common, transform: `translateX(${dragDX}px) rotate(${rotate}deg)`, opacity: 1, zIndex: 10 };
+        const dx = dragDXRef.current;
+        const rotate = dx * 0.05;
+        return { ...common, transform: `translate3d(${dx}px,0,0) rotate(${rotate}deg)`, opacity: 1, zIndex: 10 };
       }
-      return { ...common, transform: 'translateX(0) scale(1)', opacity: 1, zIndex: 10 };
+      return { ...common, transform: 'translate3d(0,0,0) scale(1)', opacity: 1, zIndex: 10 };
     }
-    if (offset === 1) return { ...common, transform: 'translateX(30px) scale(0.9)', opacity: 0.5, zIndex: 9 };
-    if (offset === -1) return { ...common, transform: 'translateX(-30px) scale(0.9)', opacity: 0.5, zIndex: 9 };
-    return { ...common, transform: `translateX(${offset > 0 ? 60 : -60}px) scale(0.8)` };
+    if (offset === 1) return { ...common, transform: 'translate3d(30px,0,0) scale(0.9)', opacity: 0.5, zIndex: 9 };
+    if (offset === -1) return { ...common, transform: 'translate3d(-30px,0,0) scale(0.9)', opacity: 0.5, zIndex: 9 };
+    return { ...common, transform: `translate3d(${offset > 0 ? 60 : -60}px,0,0) scale(0.8)` };
   };
 
   const handleAcceptDate = () => {
