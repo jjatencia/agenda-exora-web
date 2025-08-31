@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect, useRef } from 'react';
 import AppointmentCard from './AppointmentCard';
+import BottomNavigation from './BottomNavigation';
 import { Appointment } from '@/types';
 import { markNoShow } from '@/lib/api';
 
@@ -14,17 +14,8 @@ interface Props {
 }
 
 export default function CardCarousel({ appointments, onRefresh, onAttended, onNoShow }: Props) {
-  const [index, setIndex] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  
-  // Card width matches the container (max-w-md with p-4)
-  // max-w-md = 448px, minus p-4 (32px total) = 416px max
-  const containerWidth = typeof window !== 'undefined' ? 
-    Math.min(window.innerWidth - 32, 416) : 384; // 32px = p-4 padding total
-  const cardWidth = containerWidth;
-  const gap = 32; // gap-8 (32px) - 2rem  
-  const totalCardWidth = cardWidth + gap;
-  const maxIndex = Math.max(appointments.length - 1, 0);
+  const [currentCardIndex, setCurrentCardIndex] = useState(0);
+  const stackRef = useRef<HTMLDivElement>(null);
 
   if (appointments.length === 0) {
     return null;
@@ -34,19 +25,16 @@ export default function CardCarousel({ appointments, onRefresh, onAttended, onNo
     try {
       await markNoShow(id);
       
-      // Usar la función externa para actualizar el estado local
       if (onNoShow) {
         onNoShow(id);
       }
       
-      // Mostrar mensaje de éxito
       const toast = document.createElement('div');
       toast.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-complement2 text-complement4 px-4 py-2 rounded-lg shadow-lg z-50';
       toast.textContent = 'Marcado como no presentado';
       document.body.appendChild(toast);
       setTimeout(() => document.body.removeChild(toast), 3000);
     } catch (e) {
-      // Mostrar mensaje de error
       const toast = document.createElement('div');
       toast.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-secondary text-white px-4 py-2 rounded-lg shadow-lg z-50';
       toast.textContent = 'Error al marcar la cita';
@@ -56,95 +44,150 @@ export default function CardCarousel({ appointments, onRefresh, onAttended, onNo
   }
 
   function handleAttendedLocal(id: string) {
-    // Usar la función externa para actualizar el estado
     if (onAttended) {
       onAttended(id);
     }
-    // El toast ahora se maneja en AppointmentCard
   }
 
-  const handleDragStart = () => {
-    setIsDragging(true);
+  const updateCarousel = (instant = false) => {
+    if (!stackRef.current) return;
+    
+    const cards = stackRef.current.querySelectorAll('.card') as NodeListOf<HTMLElement>;
+    cards.forEach((card, index) => {
+      const offset = index - currentCardIndex;
+      
+      if (instant) {
+        card.style.transition = 'none';
+      } else {
+        card.style.transition = 'transform 0.4s ease, opacity 0.4s ease';
+      }
+
+      if (offset === 0) {
+        card.style.transform = 'translateX(0) scale(1)';
+        card.style.opacity = '1';
+        card.style.zIndex = '10';
+      } else if (offset === 1) {
+        card.style.transform = 'translateX(30px) scale(0.9)';
+        card.style.opacity = '0.5';
+        card.style.zIndex = '9';
+      } else if (offset === -1) {
+        card.style.transform = 'translateX(-30px) scale(0.9)';
+        card.style.opacity = '0.5';
+        card.style.zIndex = '9';
+      } else {
+        card.style.transform = `translateX(${offset > 0 ? 60 : -60}px) scale(0.8)`;
+        card.style.opacity = '0';
+        card.style.zIndex = '8';
+      }
+    });
   };
 
-  const handleDragEnd = (_: any, info: any) => {
-    setIsDragging(false);
-    const offset = info.offset.x;
-    const velocity = info.velocity.x;
+  // Lógica del drag para móvil
+  useEffect(() => {
+    if (!stackRef.current) return;
     
-    // Thresholds más precisos para swipe
-    const threshold = cardWidth * 0.2; // 20% del ancho de la tarjeta
-    const velocityThreshold = 300;
-    
-    if (offset < -threshold || velocity < -velocityThreshold) {
-      // Swipe hacia la izquierda - siguiente tarjeta
-      const newIndex = Math.min(index + 1, maxIndex);
-      setIndex(newIndex);
-    } else if (offset > threshold || velocity > velocityThreshold) {
-      // Swipe hacia la derecha - tarjeta anterior
-      const newIndex = Math.max(index - 1, 0);
-      setIndex(newIndex);
+    let activeCard: HTMLElement | null = null;
+    let startX: number;
+    let isDragging = false;
+
+    const startDrag = (e: MouseEvent | TouchEvent) => {
+      const target = (e.target as HTMLElement).closest('.card') as HTMLElement;
+      if (!target || target.tagName === 'A' || parseInt(target.dataset.index || '0') !== currentCardIndex) return;
+
+      isDragging = true;
+      activeCard = target;
+      activeCard.classList.add('dragging');
+      const touch = e.type === 'touchstart';
+      startX = touch ? (e as TouchEvent).touches[0].clientX : (e as MouseEvent).clientX;
+      
+      document.addEventListener('mousemove', onDrag);
+      document.addEventListener('touchmove', onDrag, { passive: true });
+      document.addEventListener('mouseup', endDrag);
+      document.addEventListener('touchend', endDrag);
+    };
+
+    const onDrag = (e: MouseEvent | TouchEvent) => {
+      if (!isDragging || !activeCard) return;
+      const touch = e.type === 'touchmove';
+      const currentX = touch ? (e as TouchEvent).touches[0].clientX : (e as MouseEvent).clientX;
+      const deltaX = currentX - startX;
+      const rotate = deltaX * 0.05;
+      activeCard.style.transform = `translateX(${deltaX}px) rotate(${rotate}deg)`;
+    };
+
+    const endDrag = (e: MouseEvent | TouchEvent) => {
+      if (!isDragging || !activeCard) return;
+      isDragging = false;
+      
+      const touch = e.type.includes('touch');
+      const finalX = touch && (e as TouchEvent).changedTouches?.length ? 
+        (e as TouchEvent).changedTouches[0].clientX : (e as MouseEvent).clientX;
+      const deltaX = finalX - startX;
+      
+      if (Math.abs(deltaX) > window.innerWidth / 5) {
+        if (deltaX > 0) {
+          // Swipe Right (Previous)
+          if (currentCardIndex > 0) setCurrentCardIndex(currentCardIndex - 1);
+        } else {
+          // Swipe Left (Next)
+          if (currentCardIndex < appointments.length - 1) setCurrentCardIndex(currentCardIndex + 1);
+        }
+      }
+      
+      updateCarousel();
+
+      document.removeEventListener('mousemove', onDrag);
+      document.removeEventListener('touchmove', onDrag);
+      document.removeEventListener('mouseup', endDrag);
+      document.removeEventListener('touchend', endDrag);
+    };
+
+    const stack = stackRef.current;
+    stack.addEventListener('mousedown', startDrag);
+    stack.addEventListener('touchstart', startDrag, { passive: true });
+
+    return () => {
+      stack.removeEventListener('mousedown', startDrag);
+      stack.removeEventListener('touchstart', startDrag);
+    };
+  }, [currentCardIndex, appointments.length]);
+
+  useEffect(() => {
+    updateCarousel();
+  }, [currentCardIndex]);
+
+  const handlePrevious = () => {
+    if (currentCardIndex > 0) {
+      setCurrentCardIndex(currentCardIndex - 1);
     }
-    // Si no se cumple el threshold, la tarjeta vuelve a su posición original automáticamente
+  };
+
+  const handleNext = () => {
+    if (currentCardIndex < appointments.length - 1) {
+      setCurrentCardIndex(currentCardIndex + 1);
+    }
   };
 
   return (
-    <div className="w-full">
-      {/* Contenedor del carrusel */}
-      <div className="overflow-hidden max-w-full">
-        <motion.div
-          drag="x"
-          dragConstraints={{
-            left: -maxIndex * totalCardWidth,
-            right: 0,
-          }}
-          dragElastic={0.2}
-          animate={{ x: -index * totalCardWidth }}
-          transition={{
-            type: 'spring',
-            stiffness: 400,
-            damping: 40,
-            mass: 0.8,
-          }}
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
-          style={{
-            cursor: isDragging ? 'grabbing' : 'grab',
-            display: 'flex',
-            gap: '2rem',
-          }}
-        >
-          {appointments.map((appointment) => (
-            <AppointmentCard
-              key={appointment.id}
-              appointment={appointment}
-              onNoShow={handleNoShow}
-              onAttended={handleAttendedLocal}
-            />
-          ))}
-        </motion.div>
+    <>
+      <div className="card-stack" ref={stackRef}>
+        {appointments.map((appointment, index) => (
+          <AppointmentCard
+            key={appointment.id}
+            appointment={appointment}
+            onNoShow={handleNoShow}
+            onAttended={handleAttendedLocal}
+            index={index}
+          />
+        ))}
       </div>
-
-      {/* Solo indicadores - ESPACIO JUSTO */}
-      <div className="mt-6 space-y-3">
-        {/* Indicadores de posición */}
-        <div className="flex justify-center items-center space-x-2">
-          {appointments.map((_, i) => (
-            <button
-              key={i}
-              className={`w-2 h-2 rounded-full transition-all ${
-                i === index ? 'bg-primary w-8' : 'bg-gray-300'
-              }`}
-              onClick={() => setIndex(i)}
-            />
-          ))}
-        </div>
-
-        {/* Contador de citas */}
-        <div className="text-center text-sm text-gray-500">
-          Cita {index + 1} de {appointments.length}
-        </div>
-      </div>
-    </div>
+      
+      <BottomNavigation
+        currentIndex={currentCardIndex}
+        totalItems={appointments.length}
+        onPrevious={handlePrevious}
+        onNext={handleNext}
+      />
+    </>
   );
 }

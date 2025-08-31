@@ -4,38 +4,16 @@ import { useState } from 'react';
 import { Appointment } from '@/types';
 import ConfirmationModal from './ConfirmationModal';
 
-// Añadir estilos CSS para el flip 3D
-const flipStyles = `
-  .transform-style-preserve-3d {
-    transform-style: preserve-3d;
-  }
-  .backface-hidden {
-    backface-visibility: hidden;
-  }
-  .rotate-y-180 {
-    transform: rotateY(180deg);
-  }
-`;
-
-// Inyectar estilos si no existen
-if (typeof window !== 'undefined' && !document.getElementById('flip-styles')) {
-  const styleSheet = document.createElement('style');
-  styleSheet.id = 'flip-styles';
-  styleSheet.textContent = flipStyles;
-  document.head.appendChild(styleSheet);
-}
-
 interface Props {
   appointment: Appointment;
   onNoShow: (id: string) => void;
   onAttended?: (id: string) => void;
+  index: number;
 }
 
-export default function AppointmentCard({ appointment, onNoShow, onAttended }: Props) {
-  const [isAttended, setIsAttended] = useState(appointment.attended || false);
-  const [lastTap, setLastTap] = useState(0);
+export default function AppointmentCard({ appointment, onNoShow, onAttended, index }: Props) {
   const [showNoShowModal, setShowNoShowModal] = useState(false);
-  const [isFlipped, setIsFlipped] = useState(false);
+
   // Formatear fecha en DD/MM/AAAA
   const formatDate = (dateISO: string) => {
     const date = new Date(dateISO);
@@ -44,29 +22,6 @@ export default function AppointmentCard({ appointment, onNoShow, onAttended }: P
       month: '2-digit',
       year: 'numeric'
     });
-  };
-
-  // Manejar doble tap para toggle estado atendido
-  const handleDoubleTap = () => {
-    const now = Date.now();
-    const DOUBLE_TAP_DELAY = 300;
-    
-    if (now - lastTap < DOUBLE_TAP_DELAY) {
-      // Es un doble tap - toggle estado atendido
-      if (!appointment.noShow && onAttended) {
-        const newAttendedState = !isAttended;
-        setIsAttended(newAttendedState);
-        onAttended(appointment.id);
-        
-        // Mostrar toast apropiado
-        const toast = document.createElement('div');
-        toast.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-primary text-white px-4 py-2 rounded-lg shadow-lg z-50';
-        toast.textContent = newAttendedState ? 'Cliente atendido ✅' : 'Estado revertido ↩️';
-        document.body.appendChild(toast);
-        setTimeout(() => document.body.removeChild(toast), 2000);
-      }
-    }
-    setLastTap(now);
   };
 
   // Formatear teléfono para llamada
@@ -94,223 +49,80 @@ export default function AppointmentCard({ appointment, onNoShow, onAttended }: P
     setShowNoShowModal(false);
   };
 
-  // Verificar si hay comentarios
-  const hasComments = appointment.comentariosCita || appointment.comentariosCliente;
-  
-  // Debug: Force show comments for first appointment to test
-  const forceShowComments = appointment.id === '1';
-
-  // Manejar click en el icono de comentarios
-  const handleCommentsClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsFlipped(!isFlipped);
-  };
-
-    return (
+  return (
     <div 
-      className="flex-shrink-0 relative"
-      style={{ 
-        width: '100%', 
-        maxWidth: '400px', 
-        minHeight: '520px',
-        perspective: '1000px' 
-      }}
+      className="card"
+      data-index={index}
     >
-      {/* Contenedor flip */}
-      <div 
-        className={`relative w-full h-full transition-transform duration-700 transform-style-preserve-3d ${
-          isFlipped ? 'rotate-y-180' : ''
-        }`}
-        style={{ transformStyle: 'preserve-3d' }}
-      >
-        {/* Cara frontal */}
-        <div 
-          className={`absolute inset-0 backface-hidden bg-white rounded-xl shadow-lg border border-gray-100 p-6 overflow-hidden transition-all duration-300 ${
-            isAttended ? 'opacity-50 bg-gray-50' : ''
-          } ${appointment.noShow ? 'bg-secondary bg-opacity-10 border-secondary border-opacity-30' : ''}`}
-          style={{ backfaceVisibility: 'hidden' }}
-          onClick={handleDoubleTap}
-        >
-      {/* Accent line en el top */}
-      <div className={`absolute top-0 left-0 right-0 h-1 ${
-        isAttended ? 'bg-complement2' : 
-        appointment.noShow ? 'bg-secondary' : 
-        'bg-gradient-to-r from-primary to-secondary'
-      }`}></div>
-
-      {/* Header con nombre del cliente */}
-      <div className="mb-4">
-        <div className="flex items-center justify-between">
-          <h2 className="font-heading text-xl font-semibold text-primary mb-1">
+      <div className="card-content">
+        <div className="text-center mb-3">
+          <h2 className="text-3xl font-bold client-name">
             {appointment.clienteNombre} {appointment.clienteApellidos}
           </h2>
-          {/* Indicador de comentarios */}
-          {(hasComments || forceShowComments) && (
-            <button
-              onClick={handleCommentsClick}
-              className="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center shadow-lg hover:bg-complement4 transition-all duration-300 transform hover:scale-110 z-10 flex-shrink-0"
-              title="Ver comentarios"
-            >
-              <span className="text-sm">💬</span>
-            </button>
-          )}
+          <p className="text-5xl font-bold mt-2" style={{ color: 'var(--exora-primary)' }}>
+            {appointment.horaInicio}
+          </p>
         </div>
-        <button 
-          onClick={handlePhoneCall}
-          className="text-sm text-primary hover:text-complement4 flex items-center transition-colors cursor-pointer"
-        >
-          <span className="inline-block w-4 h-4 mr-2">📞</span>
-          {appointment.telefono}
-        </button>
-      </div>
-
-      {/* Servicio principal */}
-      <div className="mb-4 p-3 bg-complement3 rounded-lg">
-        <h3 className="font-medium text-complement4 text-lg mb-1">
-          {appointment.servicio}
-        </h3>
-        {appointment.variante && (
-          <p className="text-sm text-gray-700 italic">+ {appointment.variante}</p>
-        )}
-      </div>
-
-      {/* Detalles de la cita */}
-      <div className="space-y-1 mb-3">
-        <div className="flex items-center text-sm">
-          <span className="w-16 text-gray-500 font-medium">Lugar:</span>
-          <span className="text-gray-800">{appointment.sucursal}</span>
-        </div>
-        <div className="flex items-center text-sm">
-          <span className="w-16 text-gray-500 font-medium">Con:</span>
-          <span className="text-gray-800">{appointment.profesional}</span>
-        </div>
-        <div className="flex items-center text-sm">
-          <span className="w-16 text-gray-500 font-medium">Fecha:</span>
-          <span className="text-gray-800 font-medium">{formatDate(appointment.fechaISO)}</span>
-        </div>
-        <div className="flex items-center text-sm">
-          <span className="w-16 text-gray-500 font-medium">Hora:</span>
-          <span className="text-gray-800 font-medium text-lg">{appointment.horaInicio}</span>
-        </div>
-      </div>
-
-      {/* Descuentos */}
-      {appointment.descuentos?.length && (
-        <div className="mb-3">
-          <p className="text-xs text-gray-500 mb-2 font-medium">PROMOCIONES:</p>
-          <div className="flex flex-wrap gap-1">
-            {appointment.descuentos.map((d) => (
-              <span key={d} className="text-xs bg-complement1 text-complement4 px-2 py-1 rounded-full font-medium">
-                🎯 {d}
-              </span>
-            ))}
+        
+        <div className="info-list mt-4 flex-grow">
+          <div className="info-row">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+            </svg>
+            <span>
+              <span className="label">Teléfono:</span>
+              <a href={`tel:${appointment.telefono}`} className="underline hover:text-blue-500">
+                {appointment.telefono}
+              </a>
+            </span>
+          </div>
+          
+          <div className="info-row">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <path d="M16 10a4 4 0 0 1-8 0"></path>
+            </svg>
+            <span>
+              <span className="label">Servicio:</span>
+              <span className="service-name">{appointment.servicio}</span>
+            </span>
+          </div>
+          
+          <div className="info-row">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+              <line x1="7" y1="7" x2="7.01" y2="7"></line>
+            </svg>
+            <span>
+              <span className="label">Variante:</span>
+              {appointment.variante || 'Sin variante'}
+            </span>
+          </div>
+          
+          <div className="info-row">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            <span>
+              <span className="label">Sucursal:</span>
+              {appointment.sucursal}
+            </span>
+          </div>
+          
+          <div className="info-row">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="19" y1="5" x2="5" y2="19"></line>
+              <circle cx="6.5" cy="6.5" r="2.5"></circle>
+              <circle cx="17.5" cy="17.5" r="2.5"></circle>
+            </svg>
+            <span>
+              <span className="label">Descuentos:</span>
+              {appointment.descuentos?.length ? appointment.descuentos.join(', ') : 'No'}
+            </span>
           </div>
         </div>
-      )}
-
-      {/* Estado No Show */}
-      {appointment.noShow && (
-        <div className="mb-3 p-2 bg-secondary bg-opacity-10 border border-secondary border-opacity-30 rounded-lg">
-          <span className="text-secondary font-semibold text-sm flex items-center">
-            ⚠️ Cliente no se presentó
-          </span>
-        </div>
-      )}
-
-      {/* Estado Atendido */}
-      {isAttended && !appointment.noShow && (
-        <div className="mb-3 p-2 bg-complement2 bg-opacity-20 border border-complement2 border-opacity-50 rounded-lg">
-          <span className="text-complement4 font-semibold text-sm flex items-center">
-            ✅ Cliente atendido
-          </span>
-        </div>
-      )}
-
-      {/* Instrucciones y botón de acción */}
-      {!appointment.noShow && (
-        <div className="mb-2 p-2 bg-complement3 bg-opacity-50 border border-primary border-opacity-30 rounded-lg">
-          <span className="text-primary text-xs font-medium">
-            💡 Doble tap para {isAttended ? 'revertir' : 'marcar como atendido'}
-          </span>
-        </div>
-      )}
-
-      {/* Botón de acción */}
-      <button
-        className={`w-full py-3 px-4 rounded-lg font-medium text-sm transition-all ${
-          appointment.noShow
-            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-            : 'bg-secondary text-white hover:bg-opacity-90 active:scale-95 shadow-md hover:shadow-lg'
-        }`}
-        disabled={appointment.noShow}
-        onClick={handleNoShowClick}
-      >
-        {appointment.noShow ? 'Ya marcado como ausente' : 'No se ha presentado a la cita'}
-      </button>
-      </div>
-
-      {/* Cara trasera - Comentarios */}
-      <div 
-        className="absolute inset-0 bg-gradient-to-br from-complement3 to-white rounded-xl shadow-lg border border-gray-100 p-6 overflow-y-auto"
-        style={{ 
-          backfaceVisibility: 'hidden',
-          transform: 'rotateY(180deg)'
-        }}
-      >
-        {/* Header de comentarios */}
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="font-heading text-xl font-semibold text-primary">
-            Comentarios
-          </h3>
-          <button
-            onClick={handleCommentsClick}
-            className="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center hover:bg-complement4 transition-all duration-300"
-            title="Volver"
-          >
-            <span className="text-sm">✕</span>
-          </button>
-        </div>
-
-        {/* Cliente info header */}
-        <div className="mb-6 p-4 bg-white rounded-lg shadow-sm">
-          <h4 className="font-semibold text-gray-800">
-            {appointment.clienteNombre} {appointment.clienteApellidos}
-          </h4>
-          <p className="text-sm text-gray-600">{formatDate(appointment.fechaISO)} - {appointment.horaInicio}</p>
-        </div>
-
-        {/* Comentarios de la cita */}
-        {(appointment.comentariosCita || (forceShowComments && appointment.id === '1')) && (
-          <div className="mb-6">
-            <div className="flex items-center mb-3">
-              <span className="text-2xl mr-2">📅</span>
-              <h4 className="font-semibold text-secondary">Comentarios de la cita</h4>
-            </div>
-            <div className="bg-secondary bg-opacity-10 border border-secondary border-opacity-30 rounded-lg p-4">
-              <p className="text-gray-800 leading-relaxed">
-                {appointment.comentariosCita || 'Llegará 15 minutos tarde por trabajo. Quiere el degradado más corto que la última vez.'}
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Comentarios del cliente */}
-        {(appointment.comentariosCliente || (forceShowComments && appointment.id === '1')) && (
-          <div className="mb-6">
-            <div className="flex items-center mb-3">
-              <span className="text-2xl mr-2">👤</span>
-              <h4 className="font-semibold text-complement4">Comentarios del cliente</h4>
-            </div>
-            <div className="bg-complement2 bg-opacity-20 border border-complement2 border-opacity-50 rounded-lg p-4">
-              <p className="text-gray-800 leading-relaxed">
-                {appointment.comentariosCliente || 'Cliente VIP. Prefiere silencio durante el servicio. Siempre pide gel extra fuerte.'}
-              </p>
-            </div>
-          </div>
-        )}
-
-
-      </div>
       </div>
 
       {/* Modal de confirmación */}
