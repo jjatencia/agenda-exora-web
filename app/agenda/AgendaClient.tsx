@@ -78,6 +78,25 @@ export default function AgendaClient({ userEmail }: Props) {
   const activeElRef = useRef<HTMLElement | null>(null);
   const startXRef = useRef<number>(0);
   const cardElsRef = useRef<(HTMLElement | null)[]>([]);
+  const animTimeoutRef = useRef<number | null>(null);
+
+  const clearAnimTimeout = () => {
+    if (animTimeoutRef.current != null) {
+      clearTimeout(animTimeoutRef.current);
+      animTimeoutRef.current = null;
+    }
+  };
+
+  const restoreActiveEl = () => {
+    const el = activeElRef.current;
+    if (!el) return;
+    el.classList.remove('dragging');
+    el.style.transition = '';
+    el.style.transform = '';
+    el.style.opacity = '';
+    (el.style as any).touchAction = '';
+    activeElRef.current = null;
+  };
 
   // Formato API yyyy-mm-dd en local (evita desfase por zona horaria)
   const formatDateForAPI = (date: Date) => {
@@ -142,6 +161,9 @@ export default function AgendaClient({ userEmail }: Props) {
     const indexAttr = target.getAttribute('data-card-index');
     if (indexAttr === null || Number(indexAttr) !== currentCardIndex) return;
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    // Limpiar cualquier animación previa
+    clearAnimTimeout();
+    restoreActiveEl();
     setIsDragging(true);
     startXRef.current = e.clientX;
     dragDXRef.current = 0;
@@ -190,19 +212,13 @@ export default function AgendaClient({ userEmail }: Props) {
       el.style.transition = 'transform 260ms ease, opacity 260ms ease';
       el.style.transform = `translate3d(${sign * viewportW}px,0,0) rotate(${sign * 12}deg)`;
       el.style.opacity = '0.2';
-      setTimeout(() => {
+      animTimeoutRef.current = window.setTimeout(() => {
         if (direction === 'left' && canGoNext) next();
         if (direction === 'right' && canGoPrev) prev();
         // Restaurar estilos del elemento viejo
-        if (el) {
-          el.classList.remove('dragging');
-          el.style.transition = '';
-          el.style.transform = '';
-          el.style.opacity = '';
-          (el.style as any).touchAction = '';
-        }
-        activeElRef.current = null;
+        restoreActiveEl();
         dragDXRef.current = 0;
+        animTimeoutRef.current = null;
       }, 260);
     };
 
@@ -211,13 +227,10 @@ export default function AgendaClient({ userEmail }: Props) {
       if (el) {
         el.style.transition = 'transform 200ms ease';
         el.style.transform = 'translate3d(0,0,0)';
-        setTimeout(() => {
-          el.classList.remove('dragging');
-          el.style.transition = '';
-          el.style.transform = '';
-          (el.style as any).touchAction = '';
-          activeElRef.current = null;
+        animTimeoutRef.current = window.setTimeout(() => {
+          restoreActiveEl();
           dragDXRef.current = 0;
+          animTimeoutRef.current = null;
         }, 200);
       }
       return;
@@ -231,17 +244,14 @@ export default function AgendaClient({ userEmail }: Props) {
       animateOut('right');
       return;
     }
-    // En bordes: rebotar al centro
+    // En bordes o sin siguiente/anterior: rebotar al centro siempre
     if (el) {
       el.style.transition = 'transform 200ms ease';
       el.style.transform = 'translate3d(0,0,0)';
-      setTimeout(() => {
-        el.classList.remove('dragging');
-        el.style.transition = '';
-        el.style.transform = '';
-        (el.style as any).touchAction = '';
-        activeElRef.current = null;
+      animTimeoutRef.current = window.setTimeout(() => {
+        restoreActiveEl();
         dragDXRef.current = 0;
+        animTimeoutRef.current = null;
       }, 200);
     }
   };
