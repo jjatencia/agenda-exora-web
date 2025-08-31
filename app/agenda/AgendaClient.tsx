@@ -27,8 +27,13 @@ export default function AgendaClient({ userEmail }: Props) {
   const [isDragging, setIsDragging] = useState(false);
   const [dragDX, setDragDX] = useState(0);
 
-  // Formato API yyyy-mm-dd
-  const formatDateForAPI = (date: Date) => date.toISOString().split('T')[0];
+  // Formato API yyyy-mm-dd en local (evita desfase por zona horaria)
+  const formatDateForAPI = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
   const { data: appointmentsFromAPI, isLoading, isError, mutate } = useAppointments(
     formatDateForAPI(selectedDate)
   );
