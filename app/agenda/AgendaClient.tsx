@@ -75,6 +75,9 @@ export default function AgendaClient({ userEmail }: Props) {
   const [isDragging, setIsDragging] = useState(false);
   const dragDXRef = useRef(0);
   const rafRef = useRef<number | null>(null);
+  const activeElRef = useRef<HTMLElement | null>(null);
+  const startXRef = useRef<number>(0);
+  const cardElsRef = useRef<(HTMLElement | null)[]>([]);
 
   // Formato API yyyy-mm-dd en local (evita desfase por zona horaria)
   const formatDateForAPI = (date: Date) => {
@@ -140,34 +143,56 @@ export default function AgendaClient({ userEmail }: Props) {
     if (indexAttr === null || Number(indexAttr) !== currentCardIndex) return;
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     setIsDragging(true);
-    (e.currentTarget as any)._startX = e.clientX;
+    startXRef.current = e.clientX;
+    dragDXRef.current = 0;
+    activeElRef.current = target;
+    // Optimiza interacción directa
+    target.classList.add('dragging');
+    target.style.transition = 'none';
+    (target.style as any).touchAction = 'none';
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!isDragging) return;
-    const startX = (e.currentTarget as any)._startX as number | undefined;
-    if (startX === undefined) return;
-    const dx = e.clientX - startX;
+    const dx = e.clientX - startXRef.current;
     dragDXRef.current = dx;
-    if (rafRef.current == null) {
-      rafRef.current = requestAnimationFrame(() => {
-        // fuerza un render mínimo (cambia estado dummy con micro-cola)
-        setCurrentCardIndex((i) => i);
-        rafRef.current = null;
-      });
+    const el = activeElRef.current;
+    if (el) {
+      if (rafRef.current == null) {
+        rafRef.current = requestAnimationFrame(() => {
+          const d = dragDXRef.current;
+          const rotate = d * 0.05;
+          el.style.transform = `translate3d(${d}px,0,0) rotate(${rotate}deg)`;
+          rafRef.current = null;
+        });
+      }
     }
   };
 
   const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!isDragging) return;
     (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+    const el = activeElRef.current;
     setIsDragging(false);
     const threshold = (typeof window !== 'undefined' ? window.innerWidth : 360) / 5;
     const dx = dragDXRef.current;
+    // Limpia raf pendiente
+    if (rafRef.current != null) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
     if (Math.abs(dx) > threshold) {
       if (dx > 0) prev(); else next();
     }
     dragDXRef.current = 0;
+    if (el) {
+      // Restaurar transiciones y estilos para que encaje al sitio
+      el.classList.remove('dragging');
+      el.style.transition = '';
+      el.style.transform = '';
+      (el.style as any).touchAction = '';
+      activeElRef.current = null;
+    }
   };
 
   // Transform base por offset
@@ -179,10 +204,9 @@ export default function AgendaClient({ userEmail }: Props) {
       opacity: 0,
     };
     if (offset === 0) {
+      // Mientras se arrastra, el transform se aplica imperativamente, sin estilos aquí
       if (isDragging) {
-        const dx = dragDXRef.current;
-        const rotate = dx * 0.05;
-        return { ...common, transform: `translate3d(${dx}px,0,0) rotate(${rotate}deg)`, opacity: 1, zIndex: 10 };
+        return { ...common, opacity: 1, zIndex: 10 };
       }
       return { ...common, transform: 'translate3d(0,0,0) scale(1)', opacity: 1, zIndex: 10 };
     }
