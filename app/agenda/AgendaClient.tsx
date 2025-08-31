@@ -197,7 +197,6 @@ export default function AgendaClient({ userEmail }: Props) {
     const el = activeElRef.current;
     setIsDragging(false);
     const viewportW = typeof window !== 'undefined' ? window.innerWidth : 360;
-    const deadzone = 10; // px para evitar taps accidentales
     const dx = dragDXRef.current;
     // Limpia raf pendiente
     if (rafRef.current != null) {
@@ -222,8 +221,8 @@ export default function AgendaClient({ userEmail }: Props) {
       }, 260);
     };
 
-    if (Math.abs(dx) <= deadzone) {
-      // Volver al centro suavemente
+    if (dx === 0) {
+      // Tap sin desplazamiento: volver al centro
       if (el) {
         el.style.transition = 'transform 200ms ease';
         el.style.transform = 'translate3d(0,0,0)';
