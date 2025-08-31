@@ -174,24 +174,75 @@ export default function AgendaClient({ userEmail }: Props) {
     (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
     const el = activeElRef.current;
     setIsDragging(false);
-    const threshold = (typeof window !== 'undefined' ? window.innerWidth : 360) / 5;
+    const viewportW = typeof window !== 'undefined' ? window.innerWidth : 360;
+    const deadzone = 10; // px para evitar taps accidentales
     const dx = dragDXRef.current;
     // Limpia raf pendiente
     if (rafRef.current != null) {
       cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
     }
-    if (Math.abs(dx) > threshold) {
-      if (dx > 0) prev(); else next();
+    const canGoPrev = currentCardIndex > 0;
+    const canGoNext = currentCardIndex < Math.max(appointments.length - 1, 0);
+    const animateOut = (direction: 'left' | 'right') => {
+      if (!el) return;
+      const sign = direction === 'left' ? -1 : 1;
+      el.style.transition = 'transform 260ms ease, opacity 260ms ease';
+      el.style.transform = `translate3d(${sign * viewportW}px,0,0) rotate(${sign * 12}deg)`;
+      el.style.opacity = '0.2';
+      setTimeout(() => {
+        if (direction === 'left' && canGoNext) next();
+        if (direction === 'right' && canGoPrev) prev();
+        // Restaurar estilos del elemento viejo
+        if (el) {
+          el.classList.remove('dragging');
+          el.style.transition = '';
+          el.style.transform = '';
+          el.style.opacity = '';
+          (el.style as any).touchAction = '';
+        }
+        activeElRef.current = null;
+        dragDXRef.current = 0;
+      }, 260);
+    };
+
+    if (Math.abs(dx) <= deadzone) {
+      // Volver al centro suavemente
+      if (el) {
+        el.style.transition = 'transform 200ms ease';
+        el.style.transform = 'translate3d(0,0,0)';
+        setTimeout(() => {
+          el.classList.remove('dragging');
+          el.style.transition = '';
+          el.style.transform = '';
+          (el.style as any).touchAction = '';
+          activeElRef.current = null;
+          dragDXRef.current = 0;
+        }, 200);
+      }
+      return;
     }
-    dragDXRef.current = 0;
+
+    if (dx < 0 && canGoNext) {
+      animateOut('left');
+      return;
+    }
+    if (dx > 0 && canGoPrev) {
+      animateOut('right');
+      return;
+    }
+    // En bordes: rebotar al centro
     if (el) {
-      // Restaurar transiciones y estilos para que encaje al sitio
-      el.classList.remove('dragging');
-      el.style.transition = '';
-      el.style.transform = '';
-      (el.style as any).touchAction = '';
-      activeElRef.current = null;
+      el.style.transition = 'transform 200ms ease';
+      el.style.transform = 'translate3d(0,0,0)';
+      setTimeout(() => {
+        el.classList.remove('dragging');
+        el.style.transition = '';
+        el.style.transform = '';
+        (el.style as any).touchAction = '';
+        activeElRef.current = null;
+        dragDXRef.current = 0;
+      }, 200);
     }
   };
 
