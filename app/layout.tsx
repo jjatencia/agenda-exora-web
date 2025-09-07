@@ -1,6 +1,7 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import { Inter, Work_Sans } from 'next/font/google';
+import AuthSessionProvider from '@/components/SessionProvider';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const workSans = Work_Sans({ subsets: ['latin'], variable: '--font-worksans' });
@@ -20,7 +21,9 @@ export default function RootLayout({
   return (
     <html lang="es-ES" className={`${inter.variable} ${workSans.variable}`}> 
       <body className="font-sans bg-white text-complement4 dark:bg-complement4 dark:text-white">
-        {children}
+        <AuthSessionProvider>
+          {children}
+        </AuthSessionProvider>
       </body>
     </html>
   );
