@@ -79,7 +79,7 @@ export default function AgendaPage() {
             <CardCarousel appointments={appointments} onRefresh={handleRefresh} />
           </div>
         ) : (
-          <NoData />
+          <NoData onPick={() => setSelectedDate(new Date())} />
         )}
 
         <div className="text-center text-sm text-gray-500 mt-8">
