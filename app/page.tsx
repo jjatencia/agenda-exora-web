@@ -1,7 +1,6 @@
-import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 
-export default async function Home() {
-  const session = await auth();
-  redirect(session ? "/agenda" : "/login");
+export default function Home() {
+  // Simplemente redirige al login, el middleware se encarga de proteger /agenda
+  redirect("/login");
 }
