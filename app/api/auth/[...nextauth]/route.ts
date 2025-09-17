@@ -1,13 +1,36 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-// NOTA: Sustituye esta función por la llamada real a tu backend.
-// Debe devolver un objeto usuario { id, name, email } si credenciales válidas; o null si no.
 async function authenticateViaBackend(email: string, password: string) {
-  if (email === "admin@example.com" && password === "password") {
-    return { id: "1", name: "Admin", email };
+  try {
+    const response = await fetch('https://api.exora.app/api/auth/ext-login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email,
+        password
+      })
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = await response.json();
+
+    // Store the token for future requests
+    return {
+      id: data.id || data.userId || email,
+      name: data.name || data.nombre || email.split('@')[0],
+      email,
+      token: data.token || data.accessToken
+    };
+  } catch (error) {
+    console.error('Login API error:', error);
+    return null;
   }
-  return null;
 }
 
 const handler = NextAuth({
@@ -44,9 +67,16 @@ const handler = NextAuth({
       if (new URL(url).origin === baseUrl) return url;
       return baseUrl;
     },
+    async jwt({ token, user }) {
+      if (user) {
+        token.accessToken = (user as any).token;
+      }
+      return token;
+    },
     async session({ session, token }) {
       if (token?.sub && session.user) {
         (session.user as any).id = token.sub;
+        (session.user as any).accessToken = token.accessToken;
       }
       return session;
     },

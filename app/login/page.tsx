@@ -58,7 +58,6 @@ export default function LoginPage() {
             name="email"
             type="email"
             required
-            defaultValue="admin@example.com"
             className="w-full rounded-md border px-3 py-2"
           />
         </div>
@@ -71,7 +70,6 @@ export default function LoginPage() {
             name="password"
             type="password"
             required
-            defaultValue="password"
             className="w-full rounded-md border px-3 py-2"
           />
         </div>
@@ -82,9 +80,6 @@ export default function LoginPage() {
         >
           {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
         </button>
-        <p className="text-xs text-gray-600 text-center">
-          Usa: admin@example.com / password
-        </p>
       </form>
     </main>
   );

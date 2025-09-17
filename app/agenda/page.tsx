@@ -7,6 +7,7 @@ import DateHeader from '@/components/DateHeader';
 import CardCarousel from '@/components/CardCarousel';
 import NoData from '@/components/NoData';
 import { Appointment } from '@/types';
+import { filterAndSortAppointments } from '@/lib/appointments';
 
 export default function AgendaPage() {
   const { data: session, status } = useSession();
@@ -26,10 +27,17 @@ export default function AgendaPage() {
     setLoading(true);
     try {
       const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD
-      const response = await fetch(`/api/appointments?date=${dateStr}`);
+      // TODO: Replace 'exora' with actual empresa from user session or configuration
+      const params = new URLSearchParams({
+        date: dateStr,
+        empresa: 'exora'
+      });
+
+      const response = await fetch(`/api/appointments?${params.toString()}`);
       if (response.ok) {
         const data = await response.json();
-        setAppointments(data);
+        const sortedAppointments = filterAndSortAppointments(data);
+        setAppointments(sortedAppointments);
       } else {
         console.error('Failed to fetch appointments');
         setAppointments([]);
